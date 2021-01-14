@@ -59,9 +59,14 @@ dependencies {
      */
     stockApi 'org.openftc:tfod-google-ftcsdk-repackaged:5.0' //Specific version of TFOD core library used by FTC SDK
     stockApi 'org.openftc:tfod-ftc-repackaged:5.0' //FTC specific addons to core TFOD lib
+    stockApi 'com.acmerobotics.dashboard:dashboard:0.3.10'
 
     /*
      * External
      */
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+
+    implementation('com.acmerobotics.dashboard:dashboard:0.3.10') {
+        exclude group: 'org.firstinspires.ftc'
+    }
 }
