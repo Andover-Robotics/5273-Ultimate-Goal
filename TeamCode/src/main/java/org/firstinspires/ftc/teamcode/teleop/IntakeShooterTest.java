@@ -11,13 +11,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 public class IntakeShooterTest extends OpMode {
 
     private GamepadEx controller1, controller2;
-    private Motor motorFR, motorFL, motorBR, motorBL;
     private MotorEx intakeMotor, shooterMotor;
 
     @Override
     public void init() {
         intakeMotor = new MotorEx(hardwareMap, "intake", Motor.GoBILDA.RPM_435);
-        shooterMotor = new MotorEx(hardwareMap, "shooter", Motor.GoBILDA.RPM_1150);
+        shooterMotor = new MotorEx(hardwareMap, "shooter", Motor.GoBILDA.BARE);
 
         controller1 = new GamepadEx(gamepad1);
         controller2 = new GamepadEx(gamepad2);
@@ -30,17 +29,20 @@ public class IntakeShooterTest extends OpMode {
         telemetry.addData("Bumpers", "Intake");
         telemetry.update();
 
-
         if (controller1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.02 || controller2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.02) {
             shooterMotor.set(controller1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.02 ? controller1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) : controller2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
         } else if (controller1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.02 || controller2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.02) {
             shooterMotor.set(-1 * (controller1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.02 ? controller1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) : controller2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)));
+        } else {
+            shooterMotor.set(0);
         }
 
         if (controller1.getButton(GamepadKeys.Button.RIGHT_BUMPER) || controller2.getButton(GamepadKeys.Button.RIGHT_BUMPER)) {
-            intakeMotor.set(1);
-        } else if (controller1.getButton(GamepadKeys.Button.LEFT_BUMPER) || controller2.getButton(GamepadKeys.Button.LEFT_BUMPER)) {
             intakeMotor.set(-1);
+        } else if (controller1.getButton(GamepadKeys.Button.LEFT_BUMPER) || controller2.getButton(GamepadKeys.Button.LEFT_BUMPER)) {
+            intakeMotor.set(1);
+        } else {
+            intakeMotor.set(0);
         }
     }
 
