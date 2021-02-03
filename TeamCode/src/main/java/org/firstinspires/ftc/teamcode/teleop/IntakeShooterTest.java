@@ -15,7 +15,7 @@ public class IntakeShooterTest extends OpMode {
 
     @Override
     public void init() {
-        intakeMotor = new MotorEx(hardwareMap, "intake", Motor.GoBILDA.RPM_435);
+        intakeMotor = new MotorEx(hardwareMap, "intake", Motor.GoBILDA.RPM_1150);
         shooterMotor = new MotorEx(hardwareMap, "shooter", Motor.GoBILDA.BARE);
 
         controller1 = new GamepadEx(gamepad1);

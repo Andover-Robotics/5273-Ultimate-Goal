@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+
 @TeleOp(name = "Main TeleOp", group = "AA")
 public class Main extends OpMode {
 
@@ -17,7 +18,7 @@ public class Main extends OpMode {
 
     @Override
     public void init() {
-        intakeMotor = new MotorEx(hardwareMap, "intake", Motor.GoBILDA.RPM_435);
+        intakeMotor = new MotorEx(hardwareMap, "intake", Motor.GoBILDA.RPM_1150);
         shooterMotor = new MotorEx(hardwareMap, "shooter", Motor.GoBILDA.BARE);
 
         controller1 = new GamepadEx(gamepad1);
@@ -40,23 +41,20 @@ public class Main extends OpMode {
         telemetry.addData("Controller 1 Right Stick", "Rotate");
         telemetry.update();
 
+
         if (controller1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.02 || controller2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.02) {
             shooterMotor.set(controller1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.02 ? controller1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) : controller2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
         } else if (controller1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.02 || controller2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.02) {
             shooterMotor.set(-1 * (controller1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.02 ? controller1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) : controller2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)));
-        } else {
-            shooterMotor.set(0);
         }
 
         if (controller1.getButton(GamepadKeys.Button.RIGHT_BUMPER) || controller2.getButton(GamepadKeys.Button.RIGHT_BUMPER)) {
-            intakeMotor.set(-1);
-        } else if (controller1.getButton(GamepadKeys.Button.LEFT_BUMPER) || controller2.getButton(GamepadKeys.Button.LEFT_BUMPER)) {
             intakeMotor.set(1);
-        } else {
-            intakeMotor.set(0);
+        } else if (controller1.getButton(GamepadKeys.Button.LEFT_BUMPER) || controller2.getButton(GamepadKeys.Button.LEFT_BUMPER)) {
+            intakeMotor.set(-1);
         }
 
-        drive.driveRobotCentric(-controller1.getLeftX(), -controller1.getLeftY(), controller1.getRightX());
+        drive.driveRobotCentric(controller1.getLeftX(), controller1.getLeftY(), controller1.getRightX());
     }
 
     private void checkForInterrupt() throws InterruptedException {
