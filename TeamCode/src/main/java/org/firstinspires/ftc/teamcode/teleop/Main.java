@@ -46,15 +46,19 @@ public class Main extends OpMode {
             shooterMotor.set(controller1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.02 ? controller1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) : controller2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
         } else if (controller1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.02 || controller2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.02) {
             shooterMotor.set(-1 * (controller1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.02 ? controller1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) : controller2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)));
+        } else {
+            shooterMotor.set(0);
         }
 
         if (controller1.getButton(GamepadKeys.Button.RIGHT_BUMPER) || controller2.getButton(GamepadKeys.Button.RIGHT_BUMPER)) {
-            intakeMotor.set(1);
-        } else if (controller1.getButton(GamepadKeys.Button.LEFT_BUMPER) || controller2.getButton(GamepadKeys.Button.LEFT_BUMPER)) {
             intakeMotor.set(-1);
+        } else if (controller1.getButton(GamepadKeys.Button.LEFT_BUMPER) || controller2.getButton(GamepadKeys.Button.LEFT_BUMPER)) {
+            intakeMotor.set(1);
+        } else {
+            intakeMotor.set(0);
         }
 
-        drive.driveRobotCentric(controller1.getLeftX(), controller1.getLeftY(), controller1.getRightX());
+        drive.driveRobotCentric(-controller1.getLeftX(), -controller1.getLeftY(), controller1.getRightX());
     }
 
     private void checkForInterrupt() throws InterruptedException {
