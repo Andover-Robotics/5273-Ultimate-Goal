@@ -1,8 +1,12 @@
-package org.firstinspires.ftc.teamcode.util;
+package org.firstinspires.ftc.teamcode.arc_core_imports;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.teamcode.util.InputColumnResponder;
+import org.firstinspires.ftc.teamcode.util.InputColumnResponderImpl;
+import org.firstinspires.ftc.teamcode.util.Selector;
 
 import java.util.Map;
 
