@@ -1,15 +1,15 @@
 package org.firstinspires.ftc.teamcode.autonomous.alliance_insignificant;
 
+import com.arcrobotics.ftclib.drivebase.MecanumDrive;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-
-import org.firstinspires.ftc.teamcode.GlobalConfig;
-import org.firstinspires.ftc.teamcode.arc_core_imports.MecanumDrive;
 
 @Autonomous(name = "Parking Auto", group = "AA")
 public class ParkingAuto extends LinearOpMode {
-    private MecanumDrive mecanumDrive;
+
+    private MecanumDrive drive;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -17,18 +17,22 @@ public class ParkingAuto extends LinearOpMode {
 
         waitForStartWithPings();
 
-        mecanumDrive.driveForwards(GlobalConfig.TILE_LENGTH_IN * 3.25);
+        drive.driveRobotCentric(0, 0.75, 0);
+
+        sleep(3000);
+
+        drive.stop();
 
         stop();
     }
 
     private void setup() {
-        DcMotor motorFR = hardwareMap.dcMotor.get("motorFR");
-        DcMotor motorFL = hardwareMap.dcMotor.get("motorFL");
-        DcMotor motorBR = hardwareMap.dcMotor.get("motorBR");
-        DcMotor motorBL = hardwareMap.dcMotor.get("motorBL");
+        MotorEx motorFL = new MotorEx(hardwareMap, "motorFL", Motor.GoBILDA.RPM_312);
+        MotorEx motorFR = new MotorEx(hardwareMap, "motorFR", Motor.GoBILDA.RPM_312);
+        MotorEx motorBL = new MotorEx(hardwareMap, "motorBL", Motor.GoBILDA.RPM_312);
+        MotorEx motorBR = new MotorEx(hardwareMap, "motorBR", Motor.GoBILDA.RPM_312);
 
-        mecanumDrive = MecanumDrive.fromOctagonalMotors(motorFL, motorFR, motorBL, motorBR, this, (int)(GlobalConfig.TICKS_PER_INCH + 0.5), (int)(GlobalConfig.TICKS_PER_MOTOR_REVOLUTION + 0.5));
+        drive = new com.arcrobotics.ftclib.drivebase.MecanumDrive(motorFL, motorFR, motorBL, motorBR);
     }
 
     private void waitForStartWithPings() {
