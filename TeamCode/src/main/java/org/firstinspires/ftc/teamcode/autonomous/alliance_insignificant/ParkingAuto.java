@@ -19,7 +19,7 @@ public class ParkingAuto extends LinearOpMode {
 
         drive.driveRobotCentric(0, 0.75, 0);
 
-        sleep(3000);
+        sleep(1500);
 
         drive.stop();
 
