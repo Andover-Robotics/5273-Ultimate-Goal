@@ -12,6 +12,6 @@ public final class GlobalConfig {
 
     // Servo Angles (SimpleServo by FTCLib manages the conversions from angles to positions for us)
     // TODO: Determine these ASAP
-    public final static double CARTRIDGE_INTAKE_ANGLE = 0, CARTRIDGE_SHOOTER_ANGLE = 0, CARTRIDGE_LEVEL_ANGLE = 0;
-    public final static double CARTRIDGE_ARM_NEUTRAL_ANGLE = 0, CARTRIDGE_ARM_PUSH_RING_ANGLE = 0;
+    public final static double CARTRIDGE_INTAKE_ANGLE = 0.86, CARTRIDGE_SHOOTER_ANGLE = 0.67, CARTRIDGE_LEVEL_ANGLE = 0.78;
+    public final static double CARTRIDGE_ARM_NEUTRAL_ANGLE = 0.31, CARTRIDGE_ARM_PUSH_RING_ANGLE = 0;
 }

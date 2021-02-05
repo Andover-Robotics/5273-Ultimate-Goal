@@ -25,8 +25,6 @@ public class Main extends OpMode {
     private SimpleServo cartridgeTilt, cartridgeArm;
     private MecanumDrive drive;
 
-    private ButtonReader gp2DPUpReader, gp2DPDownReader, gp2BReader;
-
     private Future<?> retractCartridgeArmWhenReady = null;
     private ExecutorService asyncExecutor;
 
@@ -42,11 +40,6 @@ public class Main extends OpMode {
         // Init GamepadEx
         controller1 = new GamepadEx(gamepad1);
         controller2 = new GamepadEx(gamepad2);
-
-        // Init ButtonReaders
-        gp2DPUpReader = new ButtonReader(controller2, GamepadKeys.Button.DPAD_UP);
-        gp2DPDownReader = new ButtonReader(controller2, GamepadKeys.Button.DPAD_DOWN);
-        gp2BReader = new ButtonReader(controller2, GamepadKeys.Button.B);
 
         // Init + Reverse Motors and Servos
         intakeMotor = new MotorEx(hardwareMap, "intake", Motor.GoBILDA.RPM_1150);
@@ -77,8 +70,8 @@ public class Main extends OpMode {
 
     private void setInitialPositions() {
         // Set servos to their proper default positions
-        cartridgeArm.turnToAngle(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_ANGLE);
-        cartridgeTilt.turnToAngle(GlobalConfig.CARTRIDGE_LEVEL_ANGLE);
+        cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_ANGLE);
+        cartridgeTilt.setPosition(GlobalConfig.CARTRIDGE_LEVEL_ANGLE);
     }
 
 
@@ -107,20 +100,23 @@ public class Main extends OpMode {
         manageShooter(controller2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
 
         // CARTRIDGE MANAGEMENT
-        if (gp2DPUpReader.wasJustPressed())
-            cartridgeTilt.turnToAngle(GlobalConfig.CARTRIDGE_SHOOTER_ANGLE);
-        else if (gp2DPDownReader.wasJustPressed())
-            cartridgeTilt.turnToAngle(GlobalConfig.CARTRIDGE_INTAKE_ANGLE);
+        if (controller2.getButton(GamepadKeys.Button.DPAD_UP))
+            cartridgeTilt.setPosition(GlobalConfig.CARTRIDGE_SHOOTER_ANGLE);
+        else if (controller2.getButton(GamepadKeys.Button.DPAD_DOWN))
+            cartridgeTilt.setPosition(GlobalConfig.CARTRIDGE_INTAKE_ANGLE);
 
         // Only allow the cartridge arm to move when the cartridge is at the shooter angle and the arm is neutral
-        if (gp2BReader.wasJustPressed() && Math.abs(cartridgeTilt.getAngle() - GlobalConfig.CARTRIDGE_SHOOTER_ANGLE) <= 0.25 && Math.abs(cartridgeArm.getAngle() - GlobalConfig.CARTRIDGE_ARM_NEUTRAL_ANGLE) <= 0.25) {
+        if (controller2.getButton(GamepadKeys.Button.B) && Math.abs(cartridgeTilt.getPosition() - GlobalConfig.CARTRIDGE_SHOOTER_ANGLE) <= 0.05 && Math.abs(cartridgeArm.getPosition() - GlobalConfig.CARTRIDGE_ARM_NEUTRAL_ANGLE) <= 0.05) {
             // In case the above fails to catch a currently-executing cartridge arm command
             // If this if statement evaluates to true, we are not waiting on a thread related to the retraction of the cartridge arm
             if (retractCartridgeArmWhenReady == null || retractCartridgeArmWhenReady.isCancelled() || retractCartridgeArmWhenReady.isDone()) {
-                cartridgeArm.turnToAngle(GlobalConfig.CARTRIDGE_ARM_PUSH_RING_ANGLE);
-                retractCartridgeArmWhenReady = asyncExecutor.submit(retractArmWhenReady);
+                cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_PUSH_RING_ANGLE);
+                //retractCartridgeArmWhenReady = asyncExecutor.submit(retractArmWhenReady);
             }
         }
+
+        if(controller2.getButton(GamepadKeys.Button.X))
+            cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_ANGLE);
     }
 
     private void manageShooter(double triggerValue) {
@@ -155,9 +151,9 @@ public class Main extends OpMode {
         public void run() {
             try {
                 // Wait for the arm to have pushed the ring
-                while (Math.abs(cartridgeArm.getAngle() - GlobalConfig.CARTRIDGE_ARM_NEUTRAL_ANGLE) > 0.25)
+                while (Math.abs(cartridgeArm.getPosition() - GlobalConfig.CARTRIDGE_ARM_PUSH_RING_ANGLE) > 0.05)
                     // Watch out for the cartridge moving again - don't want to break the arm or cause a jam
-                    if (Math.abs(cartridgeTilt.getAngle() - GlobalConfig.CARTRIDGE_SHOOTER_ANGLE) > 0.5)
+                    if (Math.abs(cartridgeTilt.getPosition() - GlobalConfig.CARTRIDGE_SHOOTER_ANGLE) > 0.06)
                         throw new InterruptedException(); // Uh oh, jump to that catch to turn back to neutral!
 
 
@@ -165,10 +161,10 @@ public class Main extends OpMode {
                 wait(250);
 
                 // Begin turning back to neutral
-                cartridgeArm.turnToAngle(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_ANGLE);
+                cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_ANGLE);
             } catch (InterruptedException e) {
                 // Turn back to neutral in case of error
-                cartridgeArm.turnToAngle(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_ANGLE);
+                cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_ANGLE);
             }
         }
     };
