@@ -22,7 +22,7 @@ public class Main extends OpMode {
 
     private GamepadEx controller1, controller2;
     private MotorEx intakeMotor, shooterMotor;
-    private SimpleServo cartridgeTilt, cartridgeArm;
+    private SimpleServo cartridgeTilt, cartridgeArm, wobbleGoalTilt, wobbleGoalClaw;
     private MecanumDrive drive;
 
     private Future<?> retractCartridgeArmWhenReady = null;
@@ -51,6 +51,8 @@ public class Main extends OpMode {
 
         cartridgeTilt = new SimpleServo(hardwareMap, "cartridgeTilt", 300, 0);
         cartridgeArm = new SimpleServo(hardwareMap, "cartridgeArm", 300, 0);
+        wobbleGoalTilt = new SimpleServo(hardwareMap, "wobbleGoalTilt", 300, 0);
+        wobbleGoalClaw = new SimpleServo(hardwareMap, "wobbleGoalClaw", 300, 0);
 
         // Init MecanumDrive
         MotorEx motorFL = new MotorEx(hardwareMap, "motorFL", Motor.GoBILDA.RPM_312);
@@ -72,6 +74,8 @@ public class Main extends OpMode {
         // Set servos to their proper default positions
         cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_ANGLE);
         cartridgeTilt.setPosition(GlobalConfig.CARTRIDGE_LEVEL_ANGLE);
+        wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_UP_ANGLE);
+        wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_RELEASE_ANGLE);
     }
 
 
@@ -84,6 +88,11 @@ public class Main extends OpMode {
         telemetry.addData("Right Stick", "Rotate");
         telemetry.addData("Left Trigger", "Outtake (Reverse Intake)");
         telemetry.addData("Right Trigger", "Intake");
+        telemetry.addData("Y", "Wobble Arm Up");
+        telemetry.addData("X", "Wobble Arm Middle");
+        telemetry.addData("A", "Wobble Arm Down");
+        telemetry.addData("Left Bumper", "Wobble Claw Release");
+        telemetry.addData("Right Bumper", "Wobble Claw Grab");
         telemetry.addLine("CONTROLLER 2:");
         telemetry.addData("Right Trigger", "Shooter");
         telemetry.addData("D-Pad Up", "Cartridge Shooter Position");
@@ -95,6 +104,19 @@ public class Main extends OpMode {
         manageIntake(controller1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), controller1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
 
         drive.driveRobotCentric(-controller1.getLeftX(), -controller1.getLeftY(), controller1.getRightX());
+
+        // WOBBLE GOAL ARM
+        if (controller1.getButton(GamepadKeys.Button.Y))
+            wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_UP_ANGLE);
+        else if (controller1.getButton(GamepadKeys.Button.A))
+            wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_DOWN_ANGLE);
+        else if (controller1.getButton(GamepadKeys.Button.X))
+            wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_NEUTRAL_ANGLE);
+
+        if (controller1.getButton(GamepadKeys.Button.LEFT_BUMPER))
+            wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_RELEASE_ANGLE);
+        else if (controller1.getButton(GamepadKeys.Button.RIGHT_BUMPER))
+            wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_GRAB_ANGLE);
 
         // CONTROLLER 2
         manageShooter(controller2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
