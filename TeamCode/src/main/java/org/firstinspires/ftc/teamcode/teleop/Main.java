@@ -51,6 +51,7 @@ public class Main extends OpMode {
 
         cartridgeTilt = new SimpleServo(hardwareMap, "cartridgeTilt", 300, 0);
         cartridgeArm = new SimpleServo(hardwareMap, "cartridgeArm", 300, 0);
+
         wobbleGoalTilt = new SimpleServo(hardwareMap, "wobbleGoalTilt", 300, 0);
         wobbleGoalClaw = new SimpleServo(hardwareMap, "wobbleGoalClaw", 300, 0);
 
