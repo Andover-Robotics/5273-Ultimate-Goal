@@ -16,13 +16,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-
 @TeleOp(name = "Main TeleOp", group = "AA")
 public class Main extends OpMode {
 
     private GamepadEx controller1, controller2;
     private MotorEx intakeMotor, shooterMotor;
-    private SimpleServo cartridgeTilt, cartridgeArm;
+    private SimpleServo cartridgeTilt, cartridgeArm, wobbleGoalTilt, wobbleGoalClaw;
     private MecanumDrive drive;
 
     private Future<?> retractCartridgeArmWhenReady = null;
@@ -52,6 +51,9 @@ public class Main extends OpMode {
         cartridgeTilt = new SimpleServo(hardwareMap, "cartridgeTilt", 300, 0);
         cartridgeArm = new SimpleServo(hardwareMap, "cartridgeArm", 300, 0);
 
+        wobbleGoalTilt = new SimpleServo(hardwareMap, "wobbleGoalTilt", 300, 0);
+        wobbleGoalClaw = new SimpleServo(hardwareMap, "wobbleGoalClaw", 300, 0);
+
         // Init MecanumDrive
         MotorEx motorFL = new MotorEx(hardwareMap, "motorFL", Motor.GoBILDA.RPM_312);
         MotorEx motorFR = new MotorEx(hardwareMap, "motorFR", Motor.GoBILDA.RPM_312);
@@ -70,8 +72,10 @@ public class Main extends OpMode {
 
     private void setInitialPositions() {
         // Set servos to their proper default positions
-        cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_ANGLE);
-        cartridgeTilt.setPosition(GlobalConfig.CARTRIDGE_LEVEL_ANGLE);
+        cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_POSITION);
+        cartridgeTilt.setPosition(GlobalConfig.CARTRIDGE_LEVEL_POSITION);
+        wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_UP_POSITION);
+        wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_RELEASE_POSITION);
     }
 
 
@@ -84,6 +88,11 @@ public class Main extends OpMode {
         telemetry.addData("Right Stick", "Rotate");
         telemetry.addData("Left Trigger", "Outtake (Reverse Intake)");
         telemetry.addData("Right Trigger", "Intake");
+        telemetry.addData("Y", "Wobble Arm Up");
+        telemetry.addData("X", "Wobble Arm Middle");
+        telemetry.addData("A", "Wobble Arm Down");
+        telemetry.addData("Left Bumper", "Wobble Claw Release");
+        telemetry.addData("Right Bumper", "Wobble Claw Grab");
         telemetry.addLine("CONTROLLER 2:");
         telemetry.addData("Right Trigger", "Shooter");
         telemetry.addData("D-Pad Up", "Cartridge Shooter Position");
@@ -96,27 +105,40 @@ public class Main extends OpMode {
 
         drive.driveRobotCentric(-controller1.getLeftX(), -controller1.getLeftY(), controller1.getRightX());
 
+        // WOBBLE GOAL ARM
+        if (controller1.getButton(GamepadKeys.Button.Y))
+            wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_UP_POSITION);
+        else if (controller1.getButton(GamepadKeys.Button.A))
+            wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_DOWN_POSITION);
+        else if (controller1.getButton(GamepadKeys.Button.X))
+            wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_NEUTRAL_POSITION);
+
+        if (controller1.getButton(GamepadKeys.Button.LEFT_BUMPER))
+            wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_RELEASE_POSITION);
+        else if (controller1.getButton(GamepadKeys.Button.RIGHT_BUMPER))
+            wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_GRAB_POSITION);
+
         // CONTROLLER 2
         manageShooter(controller2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
 
         // CARTRIDGE MANAGEMENT
         if (controller2.getButton(GamepadKeys.Button.DPAD_UP))
-            cartridgeTilt.setPosition(GlobalConfig.CARTRIDGE_SHOOTER_ANGLE);
+            cartridgeTilt.setPosition(GlobalConfig.CARTRIDGE_SHOOTER_POSITION);
         else if (controller2.getButton(GamepadKeys.Button.DPAD_DOWN))
-            cartridgeTilt.setPosition(GlobalConfig.CARTRIDGE_INTAKE_ANGLE);
+            cartridgeTilt.setPosition(GlobalConfig.CARTRIDGE_INTAKE_POSITION);
 
         // Only allow the cartridge arm to move when the cartridge is at the shooter angle and the arm is neutral
-        if (controller2.getButton(GamepadKeys.Button.B) && Math.abs(cartridgeTilt.getPosition() - GlobalConfig.CARTRIDGE_SHOOTER_ANGLE) <= 0.05 && Math.abs(cartridgeArm.getPosition() - GlobalConfig.CARTRIDGE_ARM_NEUTRAL_ANGLE) <= 0.05) {
+        if (controller2.getButton(GamepadKeys.Button.B) && Math.abs(cartridgeTilt.getPosition() - GlobalConfig.CARTRIDGE_SHOOTER_POSITION) <= 0.02 && Math.abs(cartridgeArm.getPosition() - GlobalConfig.CARTRIDGE_ARM_NEUTRAL_POSITION) <= 0.02) {
             // In case the above fails to catch a currently-executing cartridge arm command
             // If this if statement evaluates to true, we are not waiting on a thread related to the retraction of the cartridge arm
             if (retractCartridgeArmWhenReady == null || retractCartridgeArmWhenReady.isCancelled() || retractCartridgeArmWhenReady.isDone()) {
-                cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_PUSH_RING_ANGLE);
-                //retractCartridgeArmWhenReady = asyncExecutor.submit(retractArmWhenReady);
+                cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_PUSH_RING_POSITION);
+                retractCartridgeArmWhenReady = asyncExecutor.submit(retractArmWhenReady);
             }
         }
 
         if(controller2.getButton(GamepadKeys.Button.X))
-            cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_ANGLE);
+            cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_POSITION);
     }
 
     private void manageShooter(double triggerValue) {
@@ -151,20 +173,23 @@ public class Main extends OpMode {
         public void run() {
             try {
                 // Wait for the arm to have pushed the ring
-                while (Math.abs(cartridgeArm.getPosition() - GlobalConfig.CARTRIDGE_ARM_PUSH_RING_ANGLE) > 0.05)
+                while (Math.abs(cartridgeArm.getPosition() - GlobalConfig.CARTRIDGE_ARM_PUSH_RING_POSITION) > 0.02) {
+                    checkForInterrupt();
+
                     // Watch out for the cartridge moving again - don't want to break the arm or cause a jam
-                    if (Math.abs(cartridgeTilt.getPosition() - GlobalConfig.CARTRIDGE_SHOOTER_ANGLE) > 0.06)
+                    if (Math.abs(cartridgeTilt.getPosition() - GlobalConfig.CARTRIDGE_SHOOTER_POSITION) > 0.02)
                         throw new InterruptedException(); // Uh oh, jump to that catch to turn back to neutral!
+                }
 
 
                 // Give it some time for the ring to (hopefully) be grabbed by the flywheel
-                wait(250);
+                wait(125);
 
                 // Begin turning back to neutral
-                cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_ANGLE);
+                cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_POSITION);
             } catch (InterruptedException e) {
                 // Turn back to neutral in case of error
-                cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_ANGLE);
+                cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_POSITION);
             }
         }
     };
