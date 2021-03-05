@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
-import com.arcrobotics.ftclib.gamepad.ButtonReader;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
@@ -97,6 +96,7 @@ public class Main extends OpMode {
         telemetry.addData("Right Trigger", "Shooter");
         telemetry.addData("D-Pad Up", "Cartridge Shooter Position");
         telemetry.addData("D-Pad Down", "Cartridge Intake Position");
+        telemetry.addData("D-Pad L/R", "Cartridge Level Position");
         telemetry.addData("B", "Push Ring Into Shooter");
         telemetry.update();
 
@@ -126,6 +126,8 @@ public class Main extends OpMode {
             cartridgeTilt.setPosition(GlobalConfig.CARTRIDGE_SHOOTER_POSITION);
         else if (controller2.getButton(GamepadKeys.Button.DPAD_DOWN))
             cartridgeTilt.setPosition(GlobalConfig.CARTRIDGE_INTAKE_POSITION);
+        else if (controller2.getButton(GamepadKeys.Button.DPAD_LEFT) || controller2.getButton(GamepadKeys.Button.DPAD_RIGHT))
+            cartridgeTilt.setPosition(GlobalConfig.CARTRIDGE_LEVEL_POSITION);
 
         // Only allow the cartridge arm to move when the cartridge is at the shooter angle and the arm is neutral
         if (controller2.getButton(GamepadKeys.Button.B) && Math.abs(cartridgeTilt.getPosition() - GlobalConfig.CARTRIDGE_SHOOTER_POSITION) <= 0.02 && Math.abs(cartridgeArm.getPosition() - GlobalConfig.CARTRIDGE_ARM_NEUTRAL_POSITION) <= 0.02) {
@@ -133,34 +135,28 @@ public class Main extends OpMode {
             // If this if statement evaluates to true, we are not waiting on a thread related to the retraction of the cartridge arm
             if (retractCartridgeArmWhenReady == null || retractCartridgeArmWhenReady.isCancelled() || retractCartridgeArmWhenReady.isDone()) {
                 cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_PUSH_RING_POSITION);
-                retractCartridgeArmWhenReady = asyncExecutor.submit(retractArmWhenReady);
+//                retractCartridgeArmWhenReady = asyncExecutor.submit(retractArmWhenReady);
             }
         }
 
-        if(controller2.getButton(GamepadKeys.Button.X))
+        if (controller2.getButton(GamepadKeys.Button.X))
             cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_POSITION);
     }
 
     private void manageShooter(double triggerValue) {
         if (triggerValue > 0.05)
-            if (triggerValue >= 0.95)
-                shooterMotor.set(1);
-            else
-                shooterMotor.set(triggerValue);
+            shooterMotor.set(Math.min(triggerValue, GlobalConfig.SHOOTER_MAX_POWER));
         else
-            shooterMotor.set(0);
+            shooterMotor.stopMotor();
     }
 
     private void manageIntake(double leftTrigger, double rightTrigger) {
         if (rightTrigger > 0.05)
-            if (rightTrigger >= 0.95)
-                intakeMotor.set(1);
-            else
-                intakeMotor.set(rightTrigger);
-        else if (leftTrigger >= 0.95)
-            intakeMotor.set(-1);
+            intakeMotor.set(Math.min(rightTrigger, GlobalConfig.INTAKE_MAX_POWER));
+        else if (leftTrigger > 0.05)
+            intakeMotor.set(-1 * Math.min(leftTrigger, GlobalConfig.INTAKE_MAX_POWER));
         else
-            intakeMotor.set(-leftTrigger);
+            intakeMotor.stopMotor();
     }
 
     private void checkForInterrupt() throws InterruptedException {
