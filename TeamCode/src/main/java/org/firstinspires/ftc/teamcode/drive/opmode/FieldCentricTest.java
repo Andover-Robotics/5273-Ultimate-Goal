@@ -3,11 +3,12 @@ package org.firstinspires.ftc.teamcode.drive.opmode;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.commands.MecanumDriveCommand;
 import org.firstinspires.ftc.teamcode.commands.RunCommand;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.RoadrunnerMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 
 /**
@@ -19,6 +20,7 @@ import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
  *
  * @author Jackson
  */
+@Disabled
 @Config
 @TeleOp
 public class FieldCentricTest extends CommandOpMode {
@@ -30,7 +32,7 @@ public class FieldCentricTest extends CommandOpMode {
     public void initialize() {
         gamepad = new GamepadEx(gamepad1);
 
-        drive = new MecanumDriveSubsystem(new SampleMecanumDrive(hardwareMap), true);
+        drive = new MecanumDriveSubsystem(new RoadrunnerMecanumDrive(hardwareMap), true);
 
         register(drive);
         drive.setDefaultCommand(new MecanumDriveCommand(

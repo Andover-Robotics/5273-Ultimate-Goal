@@ -25,4 +25,5 @@ dependencies {
     }
     implementation 'org.openftc:rev-extensions-2:1.2'
     implementation 'com.arcrobotics:ftclib:1.2.0-beta'
+    implementation 'org.openftc:easyopencv:1.4.4'
 }

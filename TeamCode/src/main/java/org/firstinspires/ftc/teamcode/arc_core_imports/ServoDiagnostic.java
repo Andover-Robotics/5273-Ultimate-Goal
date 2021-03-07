@@ -1,9 +1,13 @@
 package org.firstinspires.ftc.teamcode.arc_core_imports;
 
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.GlobalConfig;
 import org.firstinspires.ftc.teamcode.util.InputColumnResponder;
 import org.firstinspires.ftc.teamcode.util.InputColumnResponderImpl;
 import org.firstinspires.ftc.teamcode.util.Selector;
@@ -19,10 +23,15 @@ public class ServoDiagnostic extends OpMode {
     private InputColumnResponder input = new InputColumnResponderImpl();
     private Selector servoSelector;
 
+    private MotorEx intakeMotor;
+
     @Override
     public void init() {
         servoSelector = new Selector(hardwareMap.servo.entrySet().stream().map(Map.Entry::getKey));
         input.register(() -> gamepad1.x, servoSelector::selectNext);
+
+        intakeMotor = new MotorEx(hardwareMap, "intake", Motor.GoBILDA.RPM_1150);
+        intakeMotor.setInverted(true);
     }
 
     @Override
@@ -60,5 +69,16 @@ public class ServoDiagnostic extends OpMode {
                 .addData("Position", "%.4f", servo.getPosition());
 
         input.update();
+
+        manageIntake(gamepad1.left_trigger, gamepad1.right_trigger);
+    }
+
+    private void manageIntake(double leftTrigger, double rightTrigger) {
+        if (rightTrigger > 0.05)
+            intakeMotor.set(Math.min(rightTrigger, 1));
+        else if (leftTrigger > 0.05)
+            intakeMotor.set(Math.min(leftTrigger, 0.65));
+        else
+            intakeMotor.stopMotor();
     }
 }

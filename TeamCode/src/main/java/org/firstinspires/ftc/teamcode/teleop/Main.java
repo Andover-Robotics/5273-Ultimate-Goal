@@ -103,7 +103,7 @@ public class Main extends OpMode {
         // CONTROLLER 1
         manageIntake(controller1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), controller1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
 
-        drive.driveRobotCentric(-controller1.getLeftX(), -controller1.getLeftY(), controller1.getRightX());
+        drive.driveRobotCentric(-controller1.getLeftX(), -controller1.getLeftY(), -controller1.getRightX());
 
         // WOBBLE GOAL ARM
         if (controller1.getButton(GamepadKeys.Button.Y))
