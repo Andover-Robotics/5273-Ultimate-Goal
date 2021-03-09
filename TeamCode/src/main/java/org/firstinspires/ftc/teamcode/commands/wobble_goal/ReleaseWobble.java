@@ -15,7 +15,7 @@ public class ReleaseWobble extends CommandBase {
 
     @Override
     public void initialize() {
-        wobbleGoalManipulator.release();
+        wobbleGoalManipulator.openWide();
     }
 
     @Override

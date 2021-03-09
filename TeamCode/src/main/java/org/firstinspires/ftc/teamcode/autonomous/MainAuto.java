@@ -85,12 +85,12 @@ public class MainAuto extends AutonomousMaster {
         );
 
         // Opens the claw wide, then strafes to the side and begins to grab for the wobble goal as it approaches
-        ParallelCommandGroup collectOtherWobble = new ParallelCommandGroup(
+        SequentialCommandGroup collectOtherWobble = new SequentialCommandGroup(
                 new TrajectoryFollowerCommand(drive,
                         drive.trajectoryBuilder(GlobalConfig.COLLECT_OTHER_WOBBLE)
                                 .lineToLinearHeading(wobbleCollectionPose).build()
                 ), new OpenClawWide(wobbleGoalManipulator)
-                .andThen(new WaitUntilCommand(() -> Math.abs(drive.getPoseEstimate().getY()) >= GlobalConfig.COLLECT_OTHER_WOBBLE.getY() - GlobalConfig.DISTANCE_STRAFED_TO_WOBBLE * 0.33))
+                .andThen(new WaitUntilCommand(() -> Math.abs(drive.getPoseEstimate().getY()) >= GlobalConfig.COLLECT_OTHER_WOBBLE.getY() - GlobalConfig.DISTANCE_STRAFED_TO_WOBBLE * 0.20))
                 .andThen(new GrabWobbleGoal(wobbleGoalManipulator))
         );
 

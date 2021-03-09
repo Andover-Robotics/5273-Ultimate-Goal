@@ -113,6 +113,20 @@ public class Main extends OpMode {
         else if (controller1.getButton(GamepadKeys.Button.X))
             wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_OVER_WALL_POSITION);
 
+        double speed= 0.05;
+        if (controller1.getButton(GamepadKeys.Button.DPAD_UP)){
+            drive.driveRobotCentric(0.0, -speed, 0.0);
+        }
+        else if (controller1.getButton(GamepadKeys.Button.DPAD_DOWN)){
+            drive.driveRobotCentric(0.0, speed, 0.0);
+        }
+        else if(controller1.getButton(GamepadKeys.Button.DPAD_LEFT)){
+            drive.driveRobotCentric(  speed, 0.0, 0.0);
+        }
+        else if(controller1.getButton(GamepadKeys.Button.DPAD_RIGHT)){
+            drive.driveRobotCentric(-speed, 0.0, 0.0);
+        }
+
         if (controller1.getButton(GamepadKeys.Button.LEFT_BUMPER))
             wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_RELEASE_POSITION);
         else if (controller1.getButton(GamepadKeys.Button.RIGHT_BUMPER))

@@ -54,7 +54,7 @@ public class AutonomousMaster extends CommandOpMode {
         // We use an AtomicInteger because it is being incremented in a lambda (see loop)
         AtomicInteger numResultsParsed = new AtomicInteger();
 
-        while (numResultsParsed.get() < Math.pow(10, 6)) {
+        while (ringStackResult == null) {
             ringStackDetector.currentlyDetected()
                     .ifPresent((pair) -> {
                         telemetry.addData("Status", "READY");
@@ -65,10 +65,8 @@ public class AutonomousMaster extends CommandOpMode {
                         waitingRingStackConfidence = pair.second;
 
                         numResultsParsed.getAndIncrement();
+                        ringStackResult = thisResult;
 
-                        if (thisResult != null) {
-                            ringStackResult = thisResult;
-                        }
                     });
         }
 
