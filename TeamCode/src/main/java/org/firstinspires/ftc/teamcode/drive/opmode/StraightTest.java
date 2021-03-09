@@ -16,12 +16,11 @@ import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
  *
  * NOTE: this has been refactored to use FTCLib's command-based
  */
-@Disabled
 @Config
 @Autonomous(group = "drive")
 public class StraightTest extends CommandOpMode {
 
-    public static double DISTANCE = 60; // in
+    public static double DISTANCE = 72; // in
 
     private MecanumDriveSubsystem drive;
     private TrajectoryFollowerCommand straightFollower;

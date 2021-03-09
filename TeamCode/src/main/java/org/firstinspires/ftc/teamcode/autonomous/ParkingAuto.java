@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autonomous.alliance_insignificant;
+package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.hardware.motors.Motor;

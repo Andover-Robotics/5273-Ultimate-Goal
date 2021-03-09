@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
+
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+
 public final class GlobalConfig {
     // Unit conversions
     public final static double MM_PER_INCH = 25.4, CM_PER_INCH = 2.54;
@@ -18,9 +21,23 @@ public final class GlobalConfig {
     public final static double CARTRIDGE_ARM_NEUTRAL_POSITION = 0.31, CARTRIDGE_ARM_PUSH_RING_POSITION = 0;
 
     // Servo positions for wobble goal mechanism
-    public final static double WOBBLE_GOAL_ARM_UP_POSITION = 0.97, WOBBLE_GOAL_ARM_DOWN_POSITION = 0.28, WOBBLE_GOAL_ARM_NEUTRAL_POSITION = 0.79;
-    public final static double WOBBLE_GOAL_CLAW_GRAB_POSITION = 0.16, WOBBLE_GOAL_CLAW_RELEASE_POSITION = 0.33;
+    public final static double WOBBLE_GOAL_ARM_TUCKED_POSITION = 0.97, WOBBLE_GOAL_ARM_DOWN_POSITION = 0.28, WOBBLE_GOAL_ARM_OVER_WALL_POSITION = 0.825, WOBBLE_GOAL_MOVING_POSITION = 0.42;
+    public final static double WOBBLE_GOAL_CLAW_GRAB_POSITION = 0.16, WOBBLE_GOAL_CLAW_RELEASE_POSITION = 0.33, WOBBLE_GOAL_CLAW_GRIPPED_POINT = 0.22;
 
     // Max powers for intake and shooter
-    public static final double INTAKE_MAX_POWER = 0.70, SHOOTER_MAX_POWER = 1;
+    public static final double INTAKE_MAX_POWER = 0.80, SHOOTER_MAX_POWER = 0.95;
+
+    // Start Position
+    public static final Pose2d STARTING_POSITION = new Pose2d(-72 + (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -51 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(180));
+
+    // Ring Shooting Position
+    public static final Pose2d RING_SHOOTING_POSITION = new Pose2d(2 - (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -50 - (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(-2.5));
+
+    // Delivery Positions
+    public static final Pose2d DELIVERY_POINT_A = new Pose2d(-1 * (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -69 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2, Math.toRadians(135));
+    public static final Pose2d DELIVERY_POINT_B = new Pose2d(28 - (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -42, DELIVERY_POINT_A.getHeading());
+    public static final Pose2d DELIVERY_POINT_C = new Pose2d(52 - (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, DELIVERY_POINT_A.getY(), DELIVERY_POINT_A.getHeading());
+
+    // Pickup position for other wobble goal
+    public static final Pose2d COLLECT_OTHER_WOBBLE = new Pose2d(-46 + (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -27.0, Math.toRadians(0));
 }

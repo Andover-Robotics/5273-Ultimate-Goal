@@ -73,7 +73,7 @@ public class Main extends OpMode {
         // Set servos to their proper default positions
         cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_POSITION);
         cartridgeTilt.setPosition(GlobalConfig.CARTRIDGE_LEVEL_POSITION);
-        wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_UP_POSITION);
+        wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_TUCKED_POSITION);
         wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_RELEASE_POSITION);
     }
 
@@ -107,11 +107,11 @@ public class Main extends OpMode {
 
         // WOBBLE GOAL ARM
         if (controller1.getButton(GamepadKeys.Button.Y))
-            wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_UP_POSITION);
+            wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_TUCKED_POSITION);
         else if (controller1.getButton(GamepadKeys.Button.A))
             wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_DOWN_POSITION);
         else if (controller1.getButton(GamepadKeys.Button.X))
-            wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_NEUTRAL_POSITION);
+            wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_OVER_WALL_POSITION);
 
         if (controller1.getButton(GamepadKeys.Button.LEFT_BUMPER))
             wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_RELEASE_POSITION);

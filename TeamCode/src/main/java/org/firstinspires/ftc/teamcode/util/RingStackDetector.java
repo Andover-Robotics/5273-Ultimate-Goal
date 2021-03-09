@@ -3,12 +3,16 @@ package org.firstinspires.ftc.teamcode.util;
 import android.annotation.SuppressLint;
 import android.util.Log;
 import android.util.Pair;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+
 import org.apache.commons.math3.distribution.NormalDistribution;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -38,19 +42,21 @@ public class RingStackDetector {
         }
     }
 
-    private final OpenCvCamera camera;
+    private final OpenCvInternalCamera camera;
     private final RingDetectionPipeline pipeline = new RingDetectionPipeline();
     private volatile Pair<RingStackResult, Double> result = null;
     private volatile boolean saveImageNext = true;
+    private Telemetry telemetry;
 
-    public RingStackDetector(OpMode opMode) {
+    public RingStackDetector(OpMode opMode, Telemetry telemetry) {
         int cameraMonitorViewId = opMode.hardwareMap.appContext.getResources()
                 .getIdentifier("cameraMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
         camera = OpenCvCameraFactory.getInstance().createInternalCamera(OpenCvInternalCamera.CameraDirection.BACK,
                 cameraMonitorViewId);
         camera.openCameraDevice();
         camera.setPipeline(pipeline);
-        camera.startStreaming(320 * 3, 240 * 3, OpenCvCameraRotation.UPRIGHT);
+        camera.startStreaming(320 * 3, 240 * 3, OpenCvCameraRotation.UPSIDE_DOWN);
+        this.telemetry = telemetry;
     }
 
     public void saveImage() {
@@ -59,6 +65,15 @@ public class RingStackDetector {
 
     public Optional<Pair<RingStackResult, Double>> currentlyDetected() {
         return Optional.ofNullable(result);
+    }
+
+    public void setFlashLight(boolean value) {
+        camera.setFlashlightEnabled(value);
+    }
+
+    public void stop() {
+        setFlashLight(false);
+        camera.stopStreaming();
     }
 
     public void close() {
@@ -71,7 +86,7 @@ public class RingStackDetector {
         final Scalar lowerRange = new Scalar(0, 50, 220);
         final Scalar upperRange = new Scalar(20, 200, 255);
 
-        static final double ONE_RING_AREA = 9950, FOUR_RING_AREA = 19840;
+        static final double ONE_RING_AREA = 8000, FOUR_RING_AREA = 13000;
         static final double ST_DEV = 10;
         NormalDistribution one_nd = new NormalDistribution(ONE_RING_AREA, ST_DEV);
         NormalDistribution four_nd = new NormalDistribution(FOUR_RING_AREA, ST_DEV);
@@ -118,7 +133,6 @@ public class RingStackDetector {
             return input;
         }
 
-        // returns a pair containing verdict and confidence from 0 to 1
         private Optional<Pair<RingStackResult, Double>> identifyStackFromBounds() {
             if (bounds.size() == 0) {
                 return Optional.of(Pair.create(RingStackResult.ZERO, 0.7));
@@ -137,7 +151,8 @@ public class RingStackDetector {
                 // if polydp fails, switch to a local new MatOfPoint2f();
                 Imgproc.approxPolyDP(new MatOfPoint2f(contour.toArray()), polyDpResult, 3, true);
                 Rect r = Imgproc.boundingRect(new MatOfPoint(polyDpResult.toArray()));
-                if (r.y > 300 && r.area() > ONE_RING_AREA / 2) addCombineRectangle(bounds, r, bounds.size() - 1);
+                if (r.y > 300 && r.area() > ONE_RING_AREA / 2)
+                    addCombineRectangle(bounds, r, bounds.size() - 1);
             }
         }
 
