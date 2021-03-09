@@ -39,6 +39,10 @@ public class WobbleGoalManipulatorSubsystem extends SubsystemBase {
         wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_RELEASE_POSITION);
     }
 
+    public void openWide() {
+        wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_OPEN_WIDE);
+    }
+
     public double getArmPosition() {
         return wobbleGoalTilt.getPosition();
     }

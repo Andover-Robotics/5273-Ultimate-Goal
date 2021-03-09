@@ -10,6 +10,8 @@ import org.firstinspires.ftc.teamcode.subsystems.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.WobbleGoalManipulatorSubsystem;
 import org.firstinspires.ftc.teamcode.util.RingStackDetector;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class AutonomousMaster extends CommandOpMode {
 
     protected MecanumDriveSubsystem drive;
@@ -49,16 +51,24 @@ public class AutonomousMaster extends CommandOpMode {
         // TODO: Fix the RingStackDetector - it needs more time to get a good reading, so this needs to block the thread for a while
         // Possibly a loop and a counter that waits until a large number of outputs have been processed - a naive solution, but may work
         ringStackDetector = new RingStackDetector(this, telemetry);
+        // We use an AtomicInteger because it is being incremented in a lambda (see loop)
+        AtomicInteger numResultsParsed = new AtomicInteger();
 
-        while (ringStackResult == null) {
+        while (numResultsParsed.get() < Math.pow(10, 6)) {
             ringStackDetector.currentlyDetected()
                     .ifPresent((pair) -> {
                         telemetry.addData("Status", "READY");
                         telemetry.addData("Detected Configuration", pair.first);
                         telemetry.addData("Detection Confidence", pair.second);
                         telemetry.update();
-                       ringStackResult = pair.first;
+                        RingStackDetector.RingStackResult thisResult = pair.first;
                         waitingRingStackConfidence = pair.second;
+
+                        numResultsParsed.getAndIncrement();
+
+                        if (thisResult != null) {
+                            ringStackResult = thisResult;
+                        }
                     });
         }
 
@@ -66,30 +76,14 @@ public class AutonomousMaster extends CommandOpMode {
         ringStackDetector.setFlashLight(true);
         wobbleGoalManipulator.grip();
         wobbleGoalManipulator.raiseArm();
-//        waitForStart(); -- Replaced with RingStackDetector waiting
-        while (!isStarted()) {
-            if (isStopRequested()) return;
-            // keep getting results from the pipeline
-            ringStackDetector.currentlyDetected()
-                    .ifPresent((pair) -> {
-                        telemetry.addData("Status", "READY");
-                        telemetry.addData("Detected Configuration", pair.first);
-                        telemetry.addData("Detection Confidence", pair.second);
-                        telemetry.update();
-                        RingStackDetector.RingStackResult thisRingStackResult = pair.first;
-                        waitingRingStackConfidence = pair.second;
 
-                        if (thisRingStackResult != null) {
-                            ringStackResult = thisRingStackResult;
-                        }
-                    });
-        }
+        waitForStart();
+        ringStackDetector.setFlashLight(false);
 
         telemetry.addData("Status", "RUNNING");
         telemetry.update();
         // Run the scheduler (the same as CommandOpMode's code)
         while (!isStopRequested() && opModeIsActive()) {
-            ringStackDetector.setFlashLight(false);
             run();
         }
 
