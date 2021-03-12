@@ -71,7 +71,10 @@ public class MainAuto extends AutonomousMaster {
         );
 
         ParallelCommandGroup dropWobbleAndHeadToOther = new ParallelCommandGroup(
-                new DropWobbleGoal(wobbleGoalManipulator).andThen(new LowerArm(wobbleGoalManipulator)),
+                new DropWobbleGoal(wobbleGoalManipulator)
+                        .andThen(new LowerArm(wobbleGoalManipulator))
+                        .andThen(new WaitCommand(750))
+                        .andThen(new OpenClawWide(wobbleGoalManipulator)),
                 new WaitCommand(250).andThen(new TrajectoryFollowerCommand(drive,
                         drive.trajectoryBuilder(thisDeliveryPoint, deliveryToWobbleHeading)
                                 .splineToSplineHeading(GlobalConfig.COLLECT_OTHER_WOBBLE, deliveryToWobbleEndTangent)
@@ -80,20 +83,17 @@ public class MainAuto extends AutonomousMaster {
         );
 
         Pose2d wobbleCollectionPose = new Pose2d(
-                GlobalConfig.COLLECT_OTHER_WOBBLE.getX(),
+                GlobalConfig.COLLECT_OTHER_WOBBLE.getX() - 2,
                 GlobalConfig.COLLECT_OTHER_WOBBLE.getY() - GlobalConfig.DISTANCE_STRAFED_TO_WOBBLE,
                 0
         );
 
         // Opens the claw wide, then strafes to the side and begins to grab for the wobble goal as it approaches
-        SequentialCommandGroup collectOtherWobble = new SequentialCommandGroup(
-                new TrajectoryFollowerCommand(drive,
-                        drive.trajectoryBuilder(GlobalConfig.COLLECT_OTHER_WOBBLE)
-                                .lineToLinearHeading(wobbleCollectionPose).build()
-                ), new OpenClawWide(wobbleGoalManipulator)
-                .andThen(new WaitUntilCommand(() -> Math.abs(drive.getPoseEstimate().getY()) >= GlobalConfig.COLLECT_OTHER_WOBBLE.getY() - GlobalConfig.DISTANCE_STRAFED_TO_WOBBLE * 0.20))
-                .andThen(new GrabWobbleGoal(wobbleGoalManipulator))
-        );
+        SequentialCommandGroup collectOtherWobble = (SequentialCommandGroup) new TrajectoryFollowerCommand(drive,
+                drive.trajectoryBuilder(GlobalConfig.COLLECT_OTHER_WOBBLE)
+                        .lineToLinearHeading(wobbleCollectionPose).build()
+        ).andThen(new GrabWobbleGoal(wobbleGoalManipulator));
+
 
         TrajectoryFollowerCommand returnToDeliveryPoint = new TrajectoryFollowerCommand(drive,
                 drive.trajectoryBuilder(wobbleCollectionPose, Math.toRadians(ringStackResult == RingStackDetector.RingStackResult.ONE ? 30 : 225))
@@ -104,7 +104,7 @@ public class MainAuto extends AutonomousMaster {
                 new TrajectoryFollowerCommand(drive,
                         drive.trajectoryBuilder(thisDeliveryPoint)
                                 .splineToSplineHeading(GlobalConfig.PARKING_POSITION, Math.toRadians(ringStackResult == RingStackDetector.RingStackResult.ZERO ? 0 : 180))
-                        .build()
+                                .build()
                 )
         );
 
@@ -127,6 +127,6 @@ public class MainAuto extends AutonomousMaster {
                 .andThen(park)
         );
 
-        PoseStorage.currentPose=drive.getPoseEstimate();
+        PoseStorage.currentPose = drive.getPoseEstimate();
     }
 }

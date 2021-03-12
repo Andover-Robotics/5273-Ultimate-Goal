@@ -33,6 +33,8 @@ public class Main extends OpMode {
     private Future<?> retractCartridgeArmWhenReady = null;
     private ExecutorService asyncExecutor;
 
+    private double shooterPowerCap = GlobalConfig.SHOOTER_MAX_POWER;
+
     @Override
     public void init() {
         // Update Status
@@ -60,13 +62,8 @@ public class Main extends OpMode {
         wobbleGoalTilt = new SimpleServo(hardwareMap, "wobbleGoalTilt", 300, 0);
         wobbleGoalClaw = new SimpleServo(hardwareMap, "wobbleGoalClaw", 300, 0);
 
-        // Init MecanumDrive
-        MotorEx motorFL = new MotorEx(hardwareMap, "motorFL", Motor.GoBILDA.RPM_312);
-        MotorEx motorFR = new MotorEx(hardwareMap, "motorFR", Motor.GoBILDA.RPM_312);
-        MotorEx motorBL = new MotorEx(hardwareMap, "motorBL", Motor.GoBILDA.RPM_312);
-        MotorEx motorBR = new MotorEx(hardwareMap, "motorBR", Motor.GoBILDA.RPM_312);
-
         drive = new MecanumDriveSubsystem(new RoadrunnerMecanumDrive(hardwareMap), false);
+        drive.setPoseEstimate(PoseStorage.currentPose);
 
         // Set Initial Servo Positions / Angles
         setInitialPositions();
@@ -88,6 +85,7 @@ public class Main extends OpMode {
     @Override
     public void loop() {
         // Log Controls
+        telemetry.addData("shooterPowerCap", shooterPowerCap);
         telemetry.addLine("CONTROLS:");
         telemetry.addLine("CONTROLLER 1:");
         telemetry.addData("Left Stick", "Drive + Strafe");
@@ -113,9 +111,9 @@ public class Main extends OpMode {
 
         // CONTROLLER 1
         manageIntake(controller1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), controller1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
-        drive.setPoseEstimate(PoseStorage.currentPose);
 
-        drive.drive(controller1.getLeftX(), controller1.getLeftY(), controller1.getRightX());
+        drive.drive(-controller1.getLeftY(), controller1.getLeftX(), controller1.getRightX());
+        drive.update();
 
         // WOBBLE GOAL ARM
         if (controller1.getButton(GamepadKeys.Button.Y))
@@ -125,17 +123,14 @@ public class Main extends OpMode {
         else if (controller1.getButton(GamepadKeys.Button.X))
             wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_OVER_WALL_POSITION);
 
-        double speed= 0.05;
-        if (controller1.getButton(GamepadKeys.Button.DPAD_UP)){
+        double speed = 0.05;
+        if (controller1.getButton(GamepadKeys.Button.DPAD_UP)) {
             drive.drive(-speed, 0.0, 0.0);
-        }
-        else if (controller1.getButton(GamepadKeys.Button.DPAD_DOWN)){
+        } else if (controller1.getButton(GamepadKeys.Button.DPAD_DOWN)) {
             drive.drive(speed, 0.0, 0.0);
-        }
-        else if(controller1.getButton(GamepadKeys.Button.DPAD_LEFT)){
+        } else if (controller1.getButton(GamepadKeys.Button.DPAD_LEFT)) {
             drive.drive(0.0, speed, 0.0);
-        }
-        else if(controller1.getButton(GamepadKeys.Button.DPAD_RIGHT)){
+        } else if (controller1.getButton(GamepadKeys.Button.DPAD_RIGHT)) {
             drive.drive(0.0, -speed, 0.0);
         }
 
@@ -146,6 +141,10 @@ public class Main extends OpMode {
 
         // CONTROLLER 2
         manageShooter(controller2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), controller2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
+        if (controller2.getButton(GamepadKeys.Button.LEFT_STICK_BUTTON))
+            shooterPowerCap = GlobalConfig.SHOOTER_LATER_RINGS_POWER;
+        else if (controller2.getButton(GamepadKeys.Button.RIGHT_STICK_BUTTON))
+            shooterPowerCap = GlobalConfig.SHOOTER_MAX_POWER;
 
         // CARTRIDGE MANAGEMENT
         if (controller2.getButton(GamepadKeys.Button.DPAD_UP))
@@ -170,17 +169,13 @@ public class Main extends OpMode {
     }
 
     private void manageShooter(double leftTrigger, double rightTrigger) {
-        if (rightTrigger>0.05){
-            shooterMotor.set(Math.min(rightTrigger, GlobalConfig.SHOOTER_MAX_POWER));
+        if (rightTrigger > 0.05) {
+            shooterMotor.set(Math.min(rightTrigger, shooterPowerCap));
+        } else if (leftTrigger > 0.05) {
+            shooterMotor.set(Range.clip((72 - Math.abs(drive.getPoseEstimate().getX())) * 0.01, 0, 1));
+        } else {
+            shooterMotor.stopMotor();
         }
-        else if (leftTrigger>0.05){
-            shooterMotor.set(Range.clip((72-drive.getPoseEstimate().getX())*0.01, 0, 1));
-        }
-        /*
-        else
-            shooterMotor.stopMotor(drive.getPoseEstimate());
-
-         */
     }
 
     private void manageIntake(double leftTrigger, double rightTrigger) {
