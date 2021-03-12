@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.commands.wobble_goal.GrabWobbleGoal;
 import org.firstinspires.ftc.teamcode.commands.wobble_goal.GripWobble;
 import org.firstinspires.ftc.teamcode.commands.wobble_goal.LowerArm;
 import org.firstinspires.ftc.teamcode.commands.wobble_goal.OpenClawWide;
+import org.firstinspires.ftc.teamcode.drive.PoseStorage;
 import org.firstinspires.ftc.teamcode.util.RingStackDetector;
 
 
@@ -125,5 +126,7 @@ public class MainAuto extends AutonomousMaster {
                 .andThen(new DropWobbleGoal(wobbleGoalManipulator))
                 .andThen(park)
         );
+
+        PoseStorage.currentPose=drive.getPoseEstimate();
     }
 }

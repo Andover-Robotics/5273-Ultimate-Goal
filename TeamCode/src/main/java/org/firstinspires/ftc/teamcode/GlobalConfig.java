@@ -17,7 +17,7 @@ public final class GlobalConfig {
     public final static double ROBOT_WIDTH_MM = 427.766, ROBOT_LENGTH_MM = 432;
 
     // Servo Positions
-    public final static double CARTRIDGE_INTAKE_POSITION = 0.32, CARTRIDGE_SHOOTER_POSITION = 0.11, CARTRIDGE_LEVEL_POSITION = 0.22;
+    public final static double CARTRIDGE_INTAKE_POSITION = 0.38, CARTRIDGE_SHOOTER_POSITION = 0.11, CARTRIDGE_LEVEL_POSITION = 0.22;
     public final static double CARTRIDGE_ARM_NEUTRAL_POSITION = 0.31, CARTRIDGE_ARM_PUSH_RING_POSITION = 0;
 
     // Servo positions for wobble goal mechanism

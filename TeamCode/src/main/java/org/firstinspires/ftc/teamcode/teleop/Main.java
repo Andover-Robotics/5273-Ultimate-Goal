@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
@@ -8,8 +10,12 @@ import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.GlobalConfig;
+import org.firstinspires.ftc.teamcode.drive.PoseStorage;
+import org.firstinspires.ftc.teamcode.drive.RoadrunnerMecanumDrive;
+import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,7 +27,7 @@ public class Main extends OpMode {
     private GamepadEx controller1, controller2;
     private MotorEx intakeMotor, shooterMotor;
     private SimpleServo cartridgeTilt, cartridgeArm, wobbleGoalTilt, wobbleGoalClaw;
-    private MecanumDrive drive;
+    private MecanumDriveSubsystem drive;
 
     private Future<?> retractCartridgeArmWhenReady = null;
     private ExecutorService asyncExecutor;
@@ -59,7 +65,7 @@ public class Main extends OpMode {
         MotorEx motorBL = new MotorEx(hardwareMap, "motorBL", Motor.GoBILDA.RPM_312);
         MotorEx motorBR = new MotorEx(hardwareMap, "motorBR", Motor.GoBILDA.RPM_312);
 
-        drive = new MecanumDrive(motorFL, motorFR, motorBL, motorBR);
+        drive = new MecanumDriveSubsystem(new RoadrunnerMecanumDrive(hardwareMap), false);
 
         // Set Initial Servo Positions / Angles
         setInitialPositions();
@@ -87,6 +93,9 @@ public class Main extends OpMode {
         telemetry.addData("Right Stick", "Rotate");
         telemetry.addData("Left Trigger", "Outtake (Reverse Intake)");
         telemetry.addData("Right Trigger", "Intake");
+        telemetry.addData("D-Pad Up", "Drive Forward");
+        telemetry.addData("D-Pad Down", "Drive in Reverse");
+        telemetry.addData("D-Pad L/R", "Strafe Left/Right");
         telemetry.addData("Y", "Wobble Arm Up");
         telemetry.addData("X", "Wobble Arm Middle");
         telemetry.addData("A", "Wobble Arm Down");
@@ -94,6 +103,7 @@ public class Main extends OpMode {
         telemetry.addData("Right Bumper", "Wobble Claw Grab");
         telemetry.addLine("CONTROLLER 2:");
         telemetry.addData("Right Trigger", "Shooter");
+        telemetry.addData("Left Trigger", "Adjusted Shooter");
         telemetry.addData("D-Pad Up", "Cartridge Shooter Position");
         telemetry.addData("D-Pad Down", "Cartridge Intake Position");
         telemetry.addData("D-Pad L/R", "Cartridge Level Position");
@@ -102,8 +112,9 @@ public class Main extends OpMode {
 
         // CONTROLLER 1
         manageIntake(controller1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), controller1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
+        drive.setPoseEstimate(PoseStorage.currentPose);
 
-        drive.driveRobotCentric(-controller1.getLeftX(), -controller1.getLeftY(), -controller1.getRightX());
+        drive.drive(controller1.getLeftX(), controller1.getLeftY(), controller1.getRightX());
 
         // WOBBLE GOAL ARM
         if (controller1.getButton(GamepadKeys.Button.Y))
@@ -115,16 +126,16 @@ public class Main extends OpMode {
 
         double speed= 0.05;
         if (controller1.getButton(GamepadKeys.Button.DPAD_UP)){
-            drive.driveRobotCentric(0.0, -speed, 0.0);
+            drive.drive(0.0, -speed, 0.0);
         }
         else if (controller1.getButton(GamepadKeys.Button.DPAD_DOWN)){
-            drive.driveRobotCentric(0.0, speed, 0.0);
+            drive.drive(0.0, speed, 0.0);
         }
         else if(controller1.getButton(GamepadKeys.Button.DPAD_LEFT)){
-            drive.driveRobotCentric(  speed, 0.0, 0.0);
+            drive.drive(  speed, 0.0, 0.0);
         }
         else if(controller1.getButton(GamepadKeys.Button.DPAD_RIGHT)){
-            drive.driveRobotCentric(-speed, 0.0, 0.0);
+            drive.drive(-speed, 0.0, 0.0);
         }
 
         if (controller1.getButton(GamepadKeys.Button.LEFT_BUMPER))
@@ -133,7 +144,7 @@ public class Main extends OpMode {
             wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_GRAB_POSITION);
 
         // CONTROLLER 2
-        manageShooter(controller2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
+        manageShooter(controller2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), controller2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
 
         // CARTRIDGE MANAGEMENT
         if (controller2.getButton(GamepadKeys.Button.DPAD_UP))
@@ -157,12 +168,24 @@ public class Main extends OpMode {
             cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_POSITION);
     }
 
-    private void manageShooter(double triggerValue) {
-        if (triggerValue > 0.05)
-            shooterMotor.set(Math.min(triggerValue, GlobalConfig.SHOOTER_MAX_POWER));
+    private void manageShooter(double leftTrigger, double rightTrigger) {
+        if (rightTrigger>0.05){
+            shooterMotor.set(Math.min(rightTrigger, GlobalConfig.SHOOTER_MAX_POWER));
+        }
+        else if (leftTrigger>0.05){
+            shooterMotor.set((72-drive.getPoseEstimate().getX())*0.01);
+        }
+        /*
         else
-            shooterMotor.stopMotor();
+            shooterMotor.stopMotor(drive.getPoseEstimate());
+
+         */
     }
+
+    private void adjustedShooter(double leftTrigger, double rightTrigger){
+
+    }
+
 
     private void manageIntake(double leftTrigger, double rightTrigger) {
         if (rightTrigger > 0.05)
