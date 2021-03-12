@@ -11,6 +11,7 @@ import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.GlobalConfig;
 import org.firstinspires.ftc.teamcode.drive.PoseStorage;
@@ -173,7 +174,7 @@ public class Main extends OpMode {
             shooterMotor.set(Math.min(rightTrigger, GlobalConfig.SHOOTER_MAX_POWER));
         }
         else if (leftTrigger>0.05){
-            shooterMotor.set((72-drive.getPoseEstimate().getX())*0.01);
+            shooterMotor.set(Range.clip((72-drive.getPoseEstimate().getX())*0.01, 0, 1));
         }
         /*
         else
