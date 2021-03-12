@@ -127,16 +127,16 @@ public class Main extends OpMode {
 
         double speed= 0.05;
         if (controller1.getButton(GamepadKeys.Button.DPAD_UP)){
-            drive.drive(0.0, -speed, 0.0);
+            drive.drive(-speed, 0.0, 0.0);
         }
         else if (controller1.getButton(GamepadKeys.Button.DPAD_DOWN)){
-            drive.drive(0.0, speed, 0.0);
+            drive.drive(speed, 0.0, 0.0);
         }
         else if(controller1.getButton(GamepadKeys.Button.DPAD_LEFT)){
-            drive.drive(  speed, 0.0, 0.0);
+            drive.drive(0.0, speed, 0.0);
         }
         else if(controller1.getButton(GamepadKeys.Button.DPAD_RIGHT)){
-            drive.drive(-speed, 0.0, 0.0);
+            drive.drive(0.0, -speed, 0.0);
         }
 
         if (controller1.getButton(GamepadKeys.Button.LEFT_BUMPER))
@@ -182,11 +182,6 @@ public class Main extends OpMode {
 
          */
     }
-
-    private void adjustedShooter(double leftTrigger, double rightTrigger){
-
-    }
-
 
     private void manageIntake(double leftTrigger, double rightTrigger) {
         if (rightTrigger > 0.05)
