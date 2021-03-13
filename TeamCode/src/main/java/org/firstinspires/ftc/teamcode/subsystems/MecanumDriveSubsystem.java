@@ -9,21 +9,21 @@ import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.RoadrunnerMecanumDrive;
 
 import java.util.List;
 
 /**
- * A subsystem that uses the {@link SampleMecanumDrive} class.
- * This periodically calls {@link SampleMecanumDrive#update()} which runs the internal
+ * A subsystem that uses the {@link RoadrunnerMecanumDrive} class.
+ * This periodically calls {@link RoadrunnerMecanumDrive#update()} which runs the internal
  * state machine for the mecanum drive. All movement/following is async to fit the paradigm.
  */
 public class MecanumDriveSubsystem extends SubsystemBase {
 
-    private final SampleMecanumDrive drive;
+    private final RoadrunnerMecanumDrive drive;
     private final boolean fieldCentric;
 
-    public MecanumDriveSubsystem(SampleMecanumDrive drive, boolean isFieldCentric) {
+    public MecanumDriveSubsystem(RoadrunnerMecanumDrive drive, boolean isFieldCentric) {
         this.drive = drive;
         fieldCentric = isFieldCentric;
     }

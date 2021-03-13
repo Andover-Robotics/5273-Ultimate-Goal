@@ -35,7 +35,7 @@ public abstract class DriveTrain {
         return defaultPower;
     }
 
-    // -- Autonomous Methods --
+    // -- MainAuto Methods --
 
     /**
      * Drives forwards a specific distance at the default power.
