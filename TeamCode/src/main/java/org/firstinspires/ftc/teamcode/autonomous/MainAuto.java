@@ -38,10 +38,10 @@ public class MainAuto extends AutonomousMaster {
 
         int ringShotDelay = 1000;
 
-        SequentialCommandGroup shootRings = new SequentialCommandGroup(
+        SequentialCommandGroup shootRings = new SequentialCommandGroup( new WaitCommand(750),
                 new ShootRing(shooter, cartridge), new WaitCommand(ringShotDelay),
-                new ShootRing(shooter, cartridge), new WaitCommand((int) (ringShotDelay * 1.125 + 0.5)),
-                new ShootRing(shooter, cartridge), new WaitCommand((int) (ringShotDelay * 1.25 + 0.5))
+                new ShootRing(shooter, cartridge), new WaitCommand((int) (ringShotDelay * 1.3 + 0.5)),
+                new ShootRing(shooter, cartridge), new WaitCommand((int) (ringShotDelay * 1.5 + 0.5))
         );
 
         Pose2d thisDeliveryPoint;
@@ -61,7 +61,7 @@ public class MainAuto extends AutonomousMaster {
             default:
                 thisDeliveryPoint = GlobalConfig.DELIVERY_POINT_A;
                 deliveryToWobbleHeading = 0;
-                deliveryToWobbleEndTangent = Math.toRadians(225);
+                deliveryToWobbleEndTangent = Math.toRadians(180);
         }
 
         SequentialCommandGroup deliverWobbleGoal = new SequentialCommandGroup(new TrajectoryFollowerCommand(drive,
