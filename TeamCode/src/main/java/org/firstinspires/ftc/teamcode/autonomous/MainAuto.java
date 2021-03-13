@@ -38,7 +38,7 @@ public class MainAuto extends AutonomousMaster {
 
         int ringShotDelay = 1000;
 
-        SequentialCommandGroup shootRings = new SequentialCommandGroup( new WaitCommand(750),
+        SequentialCommandGroup shootRings = new SequentialCommandGroup(new WaitCommand(750),
                 new ShootRing(shooter, cartridge), new WaitCommand(ringShotDelay),
                 new ShootRing(shooter, cartridge), new WaitCommand((int) (ringShotDelay * 1.3 + 0.5)),
                 new ShootRing(shooter, cartridge), new WaitCommand((int) (ringShotDelay * 1.5 + 0.5))
@@ -65,7 +65,11 @@ public class MainAuto extends AutonomousMaster {
         }
 
         SequentialCommandGroup deliverWobbleGoal = new SequentialCommandGroup(new TrajectoryFollowerCommand(drive,
-                drive.trajectoryBuilder(GlobalConfig.RING_SHOOTING_POSITION)
+                drive.trajectoryBuilder(GlobalConfig.RING_SHOOTING_POSITION.plus(new Pose2d(
+                        0,
+                        0,
+                        0
+                )))
                         .lineToLinearHeading(thisDeliveryPoint)
                         .build())
         );
@@ -97,7 +101,11 @@ public class MainAuto extends AutonomousMaster {
 
         TrajectoryFollowerCommand returnToDeliveryPoint = new TrajectoryFollowerCommand(drive,
                 drive.trajectoryBuilder(wobbleCollectionPose, Math.toRadians(ringStackResult == RingStackDetector.RingStackResult.ONE ? 30 : 225))
-                        .splineToSplineHeading(thisDeliveryPoint, 0)
+                        .splineToSplineHeading(thisDeliveryPoint.plus(new Pose2d(
+                                0,
+                                0,
+                                0
+                        )), 0)
                         .build());
 
         ParallelCommandGroup park = new ParallelCommandGroup(
