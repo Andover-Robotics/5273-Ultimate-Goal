@@ -81,20 +81,20 @@ public class MainAuto extends AutonomousMaster {
                         .andThen(new OpenClawWide(wobbleGoalManipulator)),
                 new WaitCommand(250).andThen(new TrajectoryFollowerCommand(drive,
                         drive.trajectoryBuilder(thisDeliveryPoint, deliveryToWobbleHeading)
-                                .splineToSplineHeading(GlobalConfig.COLLECT_OTHER_WOBBLE, deliveryToWobbleEndTangent)
+                                .splineToSplineHeading(ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : GlobalConfig.COLLECT_OTHER_WOBBLE, deliveryToWobbleEndTangent)
                                 .build())
                 )
         );
 
         Pose2d wobbleCollectionPose = new Pose2d(
-                GlobalConfig.COLLECT_OTHER_WOBBLE.getX() - 1.5,
-                GlobalConfig.COLLECT_OTHER_WOBBLE.getY() - GlobalConfig.DISTANCE_STRAFED_TO_WOBBLE,
+                (ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : GlobalConfig.COLLECT_OTHER_WOBBLE).getX() - 1.5,
+                (ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : GlobalConfig.COLLECT_OTHER_WOBBLE).getY() - GlobalConfig.DISTANCE_STRAFED_TO_WOBBLE,
                 0
         );
 
         // Opens the claw wide, then strafes to the side and begins to grab for the wobble goal as it approaches
         SequentialCommandGroup collectOtherWobble = (SequentialCommandGroup) new TrajectoryFollowerCommand(drive,
-                drive.trajectoryBuilder(GlobalConfig.COLLECT_OTHER_WOBBLE)
+                drive.trajectoryBuilder(ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : GlobalConfig.COLLECT_OTHER_WOBBLE)
                         .lineToLinearHeading(wobbleCollectionPose).build()
         ).andThen(new GrabWobbleGoal(wobbleGoalManipulator));
 
@@ -109,7 +109,11 @@ public class MainAuto extends AutonomousMaster {
                         .build());
 
         ParallelCommandGroup park = new ParallelCommandGroup(
-                new TrajectoryFollowerCommand(drive,
+                ringStackResult == RingStackDetector.RingStackResult.ONE ? new TrajectoryFollowerCommand(drive,
+                        drive.trajectoryBuilder(thisDeliveryPoint)
+                                .lineToLinearHeading(GlobalConfig.PARKING_POSITION)
+                                .build()
+                ) : new TrajectoryFollowerCommand(drive,
                         drive.trajectoryBuilder(thisDeliveryPoint)
                                 .splineToSplineHeading(GlobalConfig.PARKING_POSITION, Math.toRadians(ringStackResult == RingStackDetector.RingStackResult.ZERO ? 0 : 180))
                                 .build()

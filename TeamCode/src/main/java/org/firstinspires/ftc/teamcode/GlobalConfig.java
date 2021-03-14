@@ -40,6 +40,7 @@ public final class GlobalConfig {
 
     // Pickup position for other wobble goal
     public static final Pose2d COLLECT_OTHER_WOBBLE = new Pose2d(-47 + (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -25.5 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(0));
+    public static final Pose2d COLLECT_OTHER_WOBBLE_FOUR_RINGS = new Pose2d(-47 + (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -25.5 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(0));
 
     // How far the robot strafes when attempting to collect the other wobble
     public static final double DISTANCE_STRAFED_TO_WOBBLE = 0.1;
