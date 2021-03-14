@@ -99,8 +99,22 @@ public class MainAuto extends AutonomousMaster {
         ).andThen(new GrabWobbleGoal(wobbleGoalManipulator));
 
 
+        double startingHeading;
+
+        switch(ringStackResult) {
+            case ONE:
+                startingHeading = Math.toRadians(30);
+                break;
+            case FOUR:
+                startingHeading = Math.toRadians(200);
+                break;
+            default:
+                startingHeading = Math.toRadians(225);
+                break;
+        }
+
         TrajectoryFollowerCommand returnToDeliveryPoint = new TrajectoryFollowerCommand(drive,
-                drive.trajectoryBuilder(wobbleCollectionPose, Math.toRadians(ringStackResult == RingStackDetector.RingStackResult.ONE ? 30 : 225))
+                drive.trajectoryBuilder(wobbleCollectionPose, Math.toRadians(startingHeading))
                         .splineToSplineHeading(thisDeliveryPoint.plus(new Pose2d(
                                 -5,
                                 5,
