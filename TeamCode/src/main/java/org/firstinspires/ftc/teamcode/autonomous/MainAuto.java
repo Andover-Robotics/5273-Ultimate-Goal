@@ -41,7 +41,7 @@ public class MainAuto extends AutonomousMaster {
         SequentialCommandGroup shootRings = new SequentialCommandGroup(new WaitCommand(750),
                 new ShootRing(shooter, cartridge), new WaitCommand(ringShotDelay),
                 new ShootRing(shooter, cartridge), new WaitCommand((int) (ringShotDelay * 1.3 + 0.5)),
-                new ShootRing(shooter, cartridge), new WaitCommand((int) (ringShotDelay * 1.5 + 0.5))
+                new ShootRing(shooter, cartridge), new WaitCommand((int) (ringShotDelay * 1.6 + 0.5))
         );
 
         Pose2d thisDeliveryPoint;
@@ -68,7 +68,7 @@ public class MainAuto extends AutonomousMaster {
                 drive.trajectoryBuilder(GlobalConfig.RING_SHOOTING_POSITION.plus(new Pose2d(
                         0,
                         0,
-                        0
+                        35
                 )))
                         .lineToLinearHeading(thisDeliveryPoint)
                         .build())
@@ -87,7 +87,7 @@ public class MainAuto extends AutonomousMaster {
         );
 
         Pose2d wobbleCollectionPose = new Pose2d(
-                GlobalConfig.COLLECT_OTHER_WOBBLE.getX() - 2,
+                GlobalConfig.COLLECT_OTHER_WOBBLE.getX() - 1.5,
                 GlobalConfig.COLLECT_OTHER_WOBBLE.getY() - GlobalConfig.DISTANCE_STRAFED_TO_WOBBLE,
                 0
         );
@@ -102,8 +102,8 @@ public class MainAuto extends AutonomousMaster {
         TrajectoryFollowerCommand returnToDeliveryPoint = new TrajectoryFollowerCommand(drive,
                 drive.trajectoryBuilder(wobbleCollectionPose, Math.toRadians(ringStackResult == RingStackDetector.RingStackResult.ONE ? 30 : 225))
                         .splineToSplineHeading(thisDeliveryPoint.plus(new Pose2d(
-                                0,
-                                0,
+                                -5,
+                                5,
                                 0
                         )), 0)
                         .build());

@@ -25,24 +25,24 @@ public final class GlobalConfig {
     public final static double WOBBLE_GOAL_CLAW_GRAB_POSITION = 0.16, WOBBLE_GOAL_CLAW_RELEASE_POSITION = 0.38, WOBBLE_GOAL_CLAW_OPEN_WIDE = 0.50;
 
     // Max powers for intake and shooter
-    public static final double INTAKE_MAX_POWER = 0.80, SHOOTER_MAX_POWER = 0.90, SHOOTER_LATER_RINGS_POWER = 0.875;
+    public static final double INTAKE_MAX_POWER = 0.80, SHOOTER_MAX_POWER = 0.81, SHOOTER_LATER_RINGS_POWER = 0.875;
 
     // Start Position
     public static final Pose2d STARTING_POSITION = new Pose2d(-72 + (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -51 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(180));
 
     // Ring Shooting Position
-    public static final Pose2d RING_SHOOTING_POSITION = new Pose2d(-12 - (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -72 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, -0.0139);
+    public static final Pose2d RING_SHOOTING_POSITION = new Pose2d(-14 - (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -73 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, -0.0139);
 
     // Delivery Positions
-    public static final Pose2d DELIVERY_POINT_A = new Pose2d(2 + (-1) * (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -69 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(135));
-    public static final Pose2d DELIVERY_POINT_B = new Pose2d(28 - (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -42, DELIVERY_POINT_A.getHeading());
-    public static final Pose2d DELIVERY_POINT_C = new Pose2d(52 - (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, DELIVERY_POINT_A.getY() - 7, DELIVERY_POINT_A.getHeading());
+    public static final Pose2d DELIVERY_POINT_A = new Pose2d(6 + (-1) * (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -67 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(135));
+    public static final Pose2d DELIVERY_POINT_B = new Pose2d(26 - (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -32, DELIVERY_POINT_A.getHeading());
+    public static final Pose2d DELIVERY_POINT_C = new Pose2d(52 - (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, DELIVERY_POINT_A.getY() - 3, DELIVERY_POINT_A.getHeading());
 
     // Pickup position for other wobble goal
-    public static final Pose2d COLLECT_OTHER_WOBBLE = new Pose2d(-48 + (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -28.0 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(0));
+    public static final Pose2d COLLECT_OTHER_WOBBLE = new Pose2d(-47 + (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -25.5 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(0));
 
     // How far the robot strafes when attempting to collect the other wobble
-    public static final double DISTANCE_STRAFED_TO_WOBBLE = 3;
+    public static final double DISTANCE_STRAFED_TO_WOBBLE = 0.1;
 
-    public static final Pose2d PARKING_POSITION = new Pose2d(12, -36, 0);
+    public static final Pose2d PARKING_POSITION = new Pose2d(9, -36, 0);
 }
