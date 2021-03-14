@@ -96,7 +96,7 @@ public class MainAuto extends AutonomousMaster {
         SequentialCommandGroup collectOtherWobble = (SequentialCommandGroup) new TrajectoryFollowerCommand(drive,
                 drive.trajectoryBuilder(ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : GlobalConfig.COLLECT_OTHER_WOBBLE)
                         .lineToLinearHeading(wobbleCollectionPose).build()
-        ).andThen(new GrabWobbleGoal(wobbleGoalManipulator));
+        ).andThen(new WaitCommand(500)).andThen(new GrabWobbleGoal(wobbleGoalManipulator));
 
 
         double startingHeading;
