@@ -38,10 +38,10 @@ public class MainAuto extends AutonomousMaster {
 
         int ringShotDelay = 1000;
 
-        SequentialCommandGroup shootRings = new SequentialCommandGroup(new WaitCommand(750),
-                new ShootRing(shooter, cartridge), new WaitCommand(ringShotDelay),
-                new ShootRing(shooter, cartridge), new WaitCommand((int) (ringShotDelay * 1.3 + 0.5)),
-                new ShootRing(shooter, cartridge), new WaitCommand((int) (ringShotDelay * 1.6 + 0.5))
+        SequentialCommandGroup shootRings = new SequentialCommandGroup(
+                new WaitCommand(ringShotDelay), new ShootRing(shooter, cartridge),
+                new WaitCommand((int) (ringShotDelay * 1.2 + 0.5)), new ShootRing(shooter, cartridge),
+                new WaitCommand((int) (ringShotDelay * 1.3 + 0.5)), new ShootRing(shooter, cartridge)
         );
 
         Pose2d thisDeliveryPoint;
@@ -101,7 +101,7 @@ public class MainAuto extends AutonomousMaster {
 
         double startingHeading;
 
-        switch(ringStackResult) {
+        switch (ringStackResult) {
             case ONE:
                 startingHeading = Math.toRadians(30);
                 break;
