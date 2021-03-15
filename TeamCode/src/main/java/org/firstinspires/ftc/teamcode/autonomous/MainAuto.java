@@ -116,8 +116,8 @@ public class MainAuto extends AutonomousMaster {
         TrajectoryFollowerCommand returnToDeliveryPoint = new TrajectoryFollowerCommand(drive,
                 drive.trajectoryBuilder(wobbleCollectionPose, Math.toRadians(startingHeading))
                         .splineToSplineHeading(thisDeliveryPoint.plus(new Pose2d(
-                                -5,
-                                5,
+                                -4,
+                                4,
                                 0
                         )), 0)
                         .build());

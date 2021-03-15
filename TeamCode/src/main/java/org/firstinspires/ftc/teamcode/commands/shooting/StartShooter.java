@@ -15,7 +15,7 @@ public class StartShooter extends CommandBase {
 
     @Override
     public void initialize() {
-        shooter.setPower(GlobalConfig.SHOOTER_MAX_POWER);
+        shooter.setPower(GlobalConfig.SHOOTER_AUTO_POWER);
     }
 
     @Override
