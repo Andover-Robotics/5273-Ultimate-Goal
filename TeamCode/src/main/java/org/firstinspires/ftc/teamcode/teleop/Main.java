@@ -117,11 +117,17 @@ public class Main extends OpMode {
 
         // WOBBLE GOAL ARM
         if (controller1.getButton(GamepadKeys.Button.Y))
-            wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_TUCKED_POSITION);
-        else if (controller1.getButton(GamepadKeys.Button.A))
             wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_DOWN_POSITION);
+        else if (controller1.getButton(GamepadKeys.Button.X)){
+            wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_RELEASE_POSITION);
+        }
+        else if (controller1.getButton(GamepadKeys.Button.B)){
+            wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_GRAB_POSITION);
+        }
         else if (controller1.getButton(GamepadKeys.Button.X))
             wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_OVER_WALL_POSITION);
+
+
 
         double speed = 0.05;
         if (controller1.getButton(GamepadKeys.Button.DPAD_UP)) {
@@ -135,9 +141,11 @@ public class Main extends OpMode {
         }
 
         if (controller1.getButton(GamepadKeys.Button.LEFT_BUMPER))
-            wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_RELEASE_POSITION);
+            drive.drive(0.0, 0.0, Math.toRadians(10.0));
+            //wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_RELEASE_POSITION);
         else if (controller1.getButton(GamepadKeys.Button.RIGHT_BUMPER))
-            wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_GRAB_POSITION);
+            drive.drive(0.0, 0.0, Math.toRadians(-10.0));
+            //wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_GRAB_POSITION);
 
         // CONTROLLER 2
         manageShooter(controller2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), controller2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
