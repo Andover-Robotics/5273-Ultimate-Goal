@@ -1,4 +1,4 @@
- package org.firstinspires.ftc.teamcode;
+     package org.firstinspires.ftc.teamcode;
 
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
@@ -17,7 +17,7 @@ public final class GlobalConfig {
     public final static double ROBOT_WIDTH_MM = 427.766, ROBOT_LENGTH_MM = 432;
 
     // Servo Positions
-    public final static double CARTRIDGE_INTAKE_POSITION = 0.45, CARTRIDGE_SHOOTER_POSITION = 0.25, CARTRIDGE_LEVEL_POSITION = 0.30;
+    public final static double CARTRIDGE_INTAKE_POSITION = 0.45, CARTRIDGE_SHOOTER_POSITION = 0.22, CARTRIDGE_LEVEL_POSITION = 0.30;
     public final static double CARTRIDGE_ARM_NEUTRAL_POSITION = 0.31, CARTRIDGE_ARM_PUSH_RING_POSITION = 0;
 
     // Servo positions for wobble goal mechanism
@@ -25,13 +25,13 @@ public final class GlobalConfig {
     public final static double WOBBLE_GOAL_CLAW_GRAB_POSITION = 0.16, WOBBLE_GOAL_CLAW_RELEASE_POSITION = 0.38, WOBBLE_GOAL_CLAW_OPEN_WIDE = 0.50;
 
     // Max powers for intake and shooter
-    public static final double INTAKE_MAX_POWER = 0.85, SHOOTER_MAX_POWER = 0.88, SHOOTER_LATER_RINGS_POWER = 0.85, SHOOTER_AUTO_POWER = 0.75;
+    public static final double INTAKE_MAX_POWER = 0.85, SHOOTER_MAX_POWER = 0.88, SHOOTER_LATER_RINGS_POWER = 0.85, SHOOTER_AUTO_POWER = 0.80;
 
     // Start Position
     public static final Pose2d STARTING_POSITION = new Pose2d(-72 + (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -51 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(180));
 
     // Ring Shooting Position
-    public static final Pose2d RING_SHOOTING_POSITION = new Pose2d(-12 - (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -73 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, -0.0139);
+    public static final Pose2d RING_SHOOTING_POSITION = new Pose2d(-12 - (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -75 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, -0.0139);
 
     // Delivery Positions
     public static final Pose2d DELIVERY_POINT_A = new Pose2d(6 + (-1) * (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -67 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(135));
@@ -43,7 +43,7 @@ public final class GlobalConfig {
     public static final Pose2d COLLECT_OTHER_WOBBLE_FOUR_RINGS = new Pose2d(-42 + (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -30.5 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(0));
 
     // How far the robot strafes when attempting to collect the other wobble
-    public static final double DISTANCE_STRAFED_TO_WOBBLE = 0.1;
+    public static final double DISTANCE_STRAFED_TO_WOBBLE = 0.9;
 
     public static final Pose2d PARKING_POSITION = new Pose2d(9, -36, 0);
 }

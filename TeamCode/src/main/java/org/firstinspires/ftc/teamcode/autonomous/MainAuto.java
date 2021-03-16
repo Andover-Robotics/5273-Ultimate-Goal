@@ -40,8 +40,8 @@ public class MainAuto extends AutonomousMaster {
 
         SequentialCommandGroup shootRings = new SequentialCommandGroup(
                 new WaitCommand(ringShotDelay), new ShootRing(shooter, cartridge),
-                new WaitCommand((int) (ringShotDelay * 1.2 + 0.5)), new ShootRing(shooter, cartridge),
-                new WaitCommand((int) (ringShotDelay * 1.3 + 0.5)), new ShootRing(shooter, cartridge)
+                new WaitCommand((int) (ringShotDelay * 1.7 + 0.5)), new ShootRing(shooter, cartridge),
+                new WaitCommand((int) (ringShotDelay * 2.0 + 0.5)), new ShootRing(shooter, cartridge)
         );
 
         Pose2d thisDeliveryPoint;
@@ -87,7 +87,7 @@ public class MainAuto extends AutonomousMaster {
         );
 
         Pose2d wobbleCollectionPose = new Pose2d(
-                (ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : GlobalConfig.COLLECT_OTHER_WOBBLE).getX() - 1.5,
+                (ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : GlobalConfig.COLLECT_OTHER_WOBBLE).getX() - 2.0,
                 (ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : GlobalConfig.COLLECT_OTHER_WOBBLE).getY() - GlobalConfig.DISTANCE_STRAFED_TO_WOBBLE,
                 0
         );
