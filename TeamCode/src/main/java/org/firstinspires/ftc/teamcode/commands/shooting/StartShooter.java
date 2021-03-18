@@ -15,11 +15,11 @@ public class StartShooter extends CommandBase {
 
     @Override
     public void initialize() {
-        shooter.setPower(GlobalConfig.SHOOTER_AUTO_POWER);
+        shooter.runShootingSpeed();
     }
 
     @Override
     public boolean isFinished() {
-        return true;
+        return shooter.isReadyToShoot();
     }
 }

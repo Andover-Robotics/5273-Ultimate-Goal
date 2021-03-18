@@ -10,8 +10,6 @@ import org.firstinspires.ftc.teamcode.subsystems.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.WobbleGoalManipulatorSubsystem;
 import org.firstinspires.ftc.teamcode.util.RingStackDetector;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class AutonomousMaster extends CommandOpMode {
 
     protected MecanumDriveSubsystem drive;
@@ -48,11 +46,7 @@ public class AutonomousMaster extends CommandOpMode {
         telemetry.addData("Status", "INITIALIZING");
         telemetry.update();
 
-        // TODO: Fix the RingStackDetector - it needs more time to get a good reading, so this needs to block the thread for a while
-        // Possibly a loop and a counter that waits until a large number of outputs have been processed - a naive solution, but may work
         ringStackDetector = new RingStackDetector(this, telemetry);
-        // We use an AtomicInteger because it is being incremented in a lambda (see loop)
-        AtomicInteger numResultsParsed = new AtomicInteger();
 
         while (ringStackResult == null) {
             ringStackDetector.currentlyDetected()
@@ -64,9 +58,7 @@ public class AutonomousMaster extends CommandOpMode {
                         RingStackDetector.RingStackResult thisResult = pair.first;
                         waitingRingStackConfidence = pair.second;
 
-                        numResultsParsed.getAndIncrement();
                         ringStackResult = thisResult;
-
                     });
         }
 

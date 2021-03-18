@@ -26,6 +26,7 @@ public final class GlobalConfig {
 
     // Max powers for intake and shooter
     public static final double INTAKE_MAX_POWER = 0.85, SHOOTER_MAX_POWER = 0.88, SHOOTER_LATER_RINGS_POWER = 0.85, SHOOTER_AUTO_POWER = 0.80;
+    public final static double SHOOTER_RPM = 4700;
 
     // Start Position
     public static final Pose2d STARTING_POSITION = new Pose2d(-72 + (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -51 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(180));
