@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.GlobalConfig;
 import org.firstinspires.ftc.teamcode.commands.TrajectoryFollowerCommand;
 import org.firstinspires.ftc.teamcode.commands.shooting.ShootRing;
+import org.firstinspires.ftc.teamcode.commands.shooting.ShootRings;
 import org.firstinspires.ftc.teamcode.commands.shooting.StartShooter;
 import org.firstinspires.ftc.teamcode.commands.shooting.StopShooter;
 import org.firstinspires.ftc.teamcode.commands.wobble_goal.DropWobbleGoal;
@@ -34,15 +35,9 @@ public class MainAuto extends AutonomousMaster {
                 drive.trajectoryBuilder(GlobalConfig.STARTING_POSITION, 0)
                         .splineToSplineHeading(GlobalConfig.RING_SHOOTING_POSITION, 0)
                         .build()
-        ), new StartShooter(shooter));
+        ), new StartShooter(shooter, telemetry));
 
         int ringShotDelay = 1000;
-
-        SequentialCommandGroup shootRings = new SequentialCommandGroup(
-                new WaitCommand(ringShotDelay), new ShootRing(shooter, cartridge),
-                new WaitCommand((int) (ringShotDelay * 1.7 + 0.5)), new ShootRing(shooter, cartridge),
-                new WaitCommand((int) (ringShotDelay * 2.0 + 0.5)), new ShootRing(shooter, cartridge)
-        );
 
         Pose2d thisDeliveryPoint;
         double deliveryToWobbleHeading, deliveryToWobbleEndTangent;
@@ -100,24 +95,31 @@ public class MainAuto extends AutonomousMaster {
 
 
         double startingHeading;
+        int xOffset, yOffset;
 
         switch (ringStackResult) {
             case ONE:
                 startingHeading = Math.toRadians(30);
+                xOffset = -4;
+                yOffset = 4;
                 break;
             case FOUR:
                 startingHeading = Math.toRadians(200);
+                xOffset = -6;
+                yOffset = 4;
                 break;
             default:
                 startingHeading = Math.toRadians(225);
+                xOffset = -4;
+                yOffset = 4;
                 break;
         }
 
         TrajectoryFollowerCommand returnToDeliveryPoint = new TrajectoryFollowerCommand(drive,
                 drive.trajectoryBuilder(wobbleCollectionPose, Math.toRadians(startingHeading))
                         .splineToSplineHeading(thisDeliveryPoint.plus(new Pose2d(
-                                -4,
-                                4,
+                                xOffset,
+                                yOffset,
                                 0
                         )), 0)
                         .build());
@@ -141,7 +143,7 @@ public class MainAuto extends AutonomousMaster {
         schedule(new WaitUntilCommand(this::isStarted)
                 .andThen(prepareToShoot)
                 .andThen(new WaitCommand(100))
-                .andThen(shootRings)
+                .andThen(new ShootRings(shooter, cartridge, 3, telemetry))
                 .andThen(new StopShooter(shooter))
                 .andThen(deliverWobbleGoal)
                 .andThen(new WaitCommand(wobbleGoalTransportDelay))

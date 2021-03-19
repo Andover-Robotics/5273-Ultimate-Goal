@@ -4,6 +4,7 @@ import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.commands.cartridge.PushRing;
 import org.firstinspires.ftc.teamcode.commands.cartridge.RetractArm;
 import org.firstinspires.ftc.teamcode.subsystems.CartridgeSubsystem;
@@ -14,12 +15,19 @@ public class ShootRings extends SequentialCommandGroup {
     private final CartridgeSubsystem cartridge;
     private final int numRings;
 
-    public ShootRings(ShooterSubsystem shooter, CartridgeSubsystem cartridge, int numRings) {
+    public ShootRings(ShooterSubsystem shooter, CartridgeSubsystem cartridge, int numRings, Telemetry telemetry) {
         this.shooter = shooter;
         this.cartridge = cartridge;
         this.numRings = numRings;
 
-        addCommands(new ShootRing(shooter, cartridge), new ShootRing(shooter, cartridge), new ShootRing(shooter, cartridge));
+        for (int i = 0; i < numRings; i++) {
+            addCommands(new ShootRing(shooter, cartridge, telemetry));
+
+            if (i != numRings - 1)
+                addCommands(new StartShooter(shooter, telemetry));
+        }
+
+        addCommands(new WaitCommand(200));
 
         addRequirements(shooter, cartridge);
     }

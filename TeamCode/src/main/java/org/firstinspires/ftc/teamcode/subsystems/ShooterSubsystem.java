@@ -2,37 +2,13 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.arcrobotics.ftclib.command.SubsystemBase;
-import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.teamcode.GlobalConfig;
-
-/*
-public class ShooterSubsystem extends SubsystemBase {
-    private final MotorEx shooter;
-
-    public ShooterSubsystem(HardwareMap hardwareMap, String shooterName) {
-        this.shooter = new MotorEx(hardwareMap, shooterName);
-        shooter.setRunMode(Motor.RunMode.RawPower);
-        shooter.setInverted(true);
-
-        this.stop();
-    }
-
-    public void stop() {
-        shooter.stopMotor();
-    }
-
-    public void setPower(double power) {
-        shooter.set(Range.clip(power, 0, 1));
-    }
-}
-*/
 
 public class ShooterSubsystem extends SubsystemBase {
     private ShooterState shooterState;
@@ -55,19 +31,15 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public ShooterSubsystem(HardwareMap hardwareMap, String shooterName) {
         this.shooter = hardwareMap.get(DcMotorEx.class, shooterName);
-        this.shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         this.shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        this.shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, GlobalConfig.SHOOTER_PIDF_COEFFICIENTS);
         this.shooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
         this.shooterState = ShooterState.OFF;
 
         dashboard = FtcDashboard.getInstance();
         this.turnOff();
-    }
-
-    @Override
-    public void periodic() {
-        dashboard.getTelemetry().addData("shooter velocity", this.shooter.getVelocity());
     }
 
     public void runShootingSpeed() {
@@ -84,13 +56,16 @@ public class ShooterSubsystem extends SubsystemBase {
         shooter.setVelocity(shooterState.power);
     }
 
-    public boolean isReadyToShoot() {
-        return isFlywheelAtTargetVelocity(targetTicksPerSec);
+    public double getRPM() {
+        return shooter.getVelocity() * 60.0 / ticksPerRevolution;
     }
 
-    private boolean isFlywheelAtTargetVelocity(double targetTicksPerSec) {
-        // tolerance: rev/min * min/sec * ticks/rev = ticks / sec
-        return Math.abs(targetTicksPerSec - shooter.getVelocity()) < 4.0 / 60 * 50;
+    public PIDFCoefficients getPIDFCoefficients() {
+        return shooter.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public double getTargetRPM() {
+        return targetRPM;
     }
 }
 

@@ -17,6 +17,7 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -83,7 +84,7 @@ public class RingStackDetector {
 
     class RingDetectionPipeline extends OpenCvPipeline {
 
-        final Scalar lowerRange = new Scalar(0, 50, 220);
+        final Scalar lowerRange = new Scalar(0, 50, 125);
         final Scalar upperRange = new Scalar(20, 200, 255);
 
         static final double ONE_RING_AREA = 8000, FOUR_RING_AREA = 13000;
@@ -102,7 +103,6 @@ public class RingStackDetector {
         @SuppressLint("SdCardPath")
         @Override
         public Mat processFrame(Mat input) {
-
             Imgproc.cvtColor(input, test, Imgproc.COLOR_RGB2HLS);
             Core.inRange(test, lowerRange, upperRange, edgeDetector);
             Imgproc.GaussianBlur(edgeDetector, smoothEdges, gaussianKernelSize, 0, 0);

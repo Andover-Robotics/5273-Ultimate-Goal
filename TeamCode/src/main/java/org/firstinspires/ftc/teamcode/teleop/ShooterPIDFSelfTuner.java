@@ -12,7 +12,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 import org.firstinspires.ftc.teamcode.GlobalConfig;
+import org.firstinspires.ftc.teamcode.subsystems.CartridgeSubsystem;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -28,11 +31,12 @@ public final class ShooterPIDFSelfTuner extends OpMode {
 
     private FtcDashboard dash;
     private GamepadEx pad;
+    private CartridgeSubsystem cartridge;
 
     public static int targetRPM = GlobalConfig.SHOOTER_RPM;
 
     public static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(GlobalConfig.SHOOTER_PIDF_COEFFICIENTS);
-    public static double errorFMultiplier = 0.01;
+    public static double errorFMultiplier = 0.005;
 
     // Estimated value obtained via observation - how many current RPM readings are plotted per second
     public static final double RPM_READINGS_PER_SECOND = 75;
@@ -66,10 +70,13 @@ public final class ShooterPIDFSelfTuner extends OpMode {
         this.flywheel = this.hardwareMap.get(DcMotorEx.class, "shooter");
         flywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flywheel.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
-        flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
 
         this.dash = FtcDashboard.getInstance();
         pad = new GamepadEx(gamepad1);
+
+        cartridge = new CartridgeSubsystem(hardwareMap, "cartridgeTilt", "cartridgeArm");
+        cartridge.raiseCartridge();
+        cartridge.resetArm();
     }
 
     @Override
@@ -95,6 +102,14 @@ public final class ShooterPIDFSelfTuner extends OpMode {
         } else if (pad.wasJustPressed(DPAD_RIGHT)) {
             targetRPM -= 50;
         }
+
+
+        if(pad.wasJustPressed(RIGHT_BUMPER))
+            cartridge.pushArm();
+        else if(pad.wasJustPressed(LEFT_BUMPER))
+            cartridge.resetArm();
+
+        cartridge.raiseCartridge();
 
         applyShootRpm();
 
@@ -130,7 +145,7 @@ public final class ShooterPIDFSelfTuner extends OpMode {
             pidfCoefficients.f += error * errorFMultiplier;
             flywheel.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
 
-            // Schedule the next rolling average calculation (so that spinup time is allotted)
+            // Schedule the next rolling average calculation (so that spin-up time is allotted)
             Timer startAverageTimer = new Timer();
             startAverageTimer.schedule(new TimerTask() {
                 @Override
@@ -161,6 +176,14 @@ public final class ShooterPIDFSelfTuner extends OpMode {
     }
 
     public void stop() {
+        try {
+            PrintWriter writer = new PrintWriter("sdcard/FIRST/storedShooterFCoefficient.txt");
+            writer.print(pidfCoefficients.f);
+            writer.close();
+        } catch (FileNotFoundException e) {
+            telemetry.addLine("Error saving!");
+            telemetry.update();
+        }
         flywheel.setVelocity(0);
     }
 
