@@ -5,6 +5,8 @@ import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
@@ -34,7 +36,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
 public class ShooterSubsystem extends SubsystemBase {
     private ShooterState shooterState;
-    private final MotorEx shooter;
+    private final DcMotorEx shooter;
     private static FtcDashboard dashboard;
 
     private final static double ticksPerRevolution = 28.0;
@@ -52,10 +54,10 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public ShooterSubsystem(HardwareMap hardwareMap, String shooterName) {
-        this.shooter = new MotorEx(hardwareMap, shooterName);
-        this.shooter.motorEx.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        this.shooter.setZeroPowerBehavior(Motor.ZeroPowerBehavior.FLOAT);
-        this.shooter.setInverted(true);
+        this.shooter = hardwareMap.get(DcMotorEx.class, shooterName);
+        this.shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        this.shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        this.shooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
         this.shooterState = ShooterState.OFF;
 
@@ -72,14 +74,14 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterState = ShooterState.SHOOT;
 
         // Update motor by state
-        shooter.motorEx.setVelocity(shooterState.power);
+        shooter.setVelocity(shooterState.power);
     }
 
     public void turnOff() {
         shooterState = ShooterState.OFF;
 
         // Update motor by state
-        shooter.motorEx.setVelocity(shooterState.power);
+        shooter.setVelocity(shooterState.power);
     }
 
     public boolean isReadyToShoot() {

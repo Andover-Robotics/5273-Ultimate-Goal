@@ -112,40 +112,37 @@ public class Main extends OpMode {
         // CONTROLLER 1
         manageIntake(controller1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), controller1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
 
-        drive.drive(-controller1.getLeftY(), controller1.getLeftX(), controller1.getRightX());
-        drive.update();
-
         // WOBBLE GOAL ARM
         if (controller1.getButton(GamepadKeys.Button.Y))
             wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_DOWN_POSITION);
-        else if (controller1.getButton(GamepadKeys.Button.X)){
+        else if (controller1.getButton(GamepadKeys.Button.X)) {
             wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_RELEASE_POSITION);
-        }
-        else if (controller1.getButton(GamepadKeys.Button.B)){
+        } else if (controller1.getButton(GamepadKeys.Button.B)) {
             wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_GRAB_POSITION);
-        }
-        else if (controller1.getButton(GamepadKeys.Button.X))
+        } else if (controller1.getButton(GamepadKeys.Button.X))
             wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_OVER_WALL_POSITION);
 
 
-
-        double speed = 0.05;
+        double speed = 0.30;
         if (controller1.getButton(GamepadKeys.Button.DPAD_UP)) {
             drive.drive(-speed, 0.0, 0.0);
         } else if (controller1.getButton(GamepadKeys.Button.DPAD_DOWN)) {
             drive.drive(speed, 0.0, 0.0);
         } else if (controller1.getButton(GamepadKeys.Button.DPAD_LEFT)) {
-            drive.drive(0.0, speed, 0.0);
-        } else if (controller1.getButton(GamepadKeys.Button.DPAD_RIGHT)) {
             drive.drive(0.0, -speed, 0.0);
+        } else if (controller1.getButton(GamepadKeys.Button.DPAD_RIGHT)) {
+            drive.drive(0.0, speed, 0.0);
+        } else {
+            drive.drive(-controller1.getLeftY(), controller1.getLeftX(), controller1.getRightX());
         }
+        drive.update();
 
         if (controller1.getButton(GamepadKeys.Button.LEFT_BUMPER))
-            drive.drive(0.0, 0.0, Math.toRadians(10.0));
+            drive.drive(0.0, 0.0, Math.toRadians(20.0));
             //wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_RELEASE_POSITION);
         else if (controller1.getButton(GamepadKeys.Button.RIGHT_BUMPER))
-            drive.drive(0.0, 0.0, Math.toRadians(-10.0));
-            //wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_GRAB_POSITION);
+            drive.drive(0.0, 0.0, Math.toRadians(-20.0));
+        //wobbleGoalClaw.setPosition(GlobalConfig.WOBBLE_GOAL_CLAW_GRAB_POSITION);
 
         // CONTROLLER 2
         manageShooter(controller2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), controller2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
@@ -163,7 +160,7 @@ public class Main extends OpMode {
             cartridgeTilt.setPosition(GlobalConfig.CARTRIDGE_LEVEL_POSITION);
 
         // Only allow the cartridge arm to move when the cartridge is at the shooter angle and the arm is neutral
-        if (controller2.getButton(GamepadKeys.Button.B) && Math.abs(cartridgeTilt.getPosition() - GlobalConfig.CARTRIDGE_SHOOTER_POSITION) <= 0.02 && Math.abs(cartridgeArm.getPosition() - GlobalConfig.CARTRIDGE_ARM_NEUTRAL_POSITION) <= 0.02) {
+        if (controller2.getButton(GamepadKeys.Button.RIGHT_BUMPER) && Math.abs(cartridgeTilt.getPosition() - GlobalConfig.CARTRIDGE_SHOOTER_POSITION) <= 0.02 && Math.abs(cartridgeArm.getPosition() - GlobalConfig.CARTRIDGE_ARM_NEUTRAL_POSITION) <= 0.02) {
             // In case the above fails to catch a currently-executing cartridge arm command
             // If this if statement evaluates to true, we are not waiting on a thread related to the retraction of the cartridge arm
             if (retractCartridgeArmWhenReady == null || retractCartridgeArmWhenReady.isCancelled() || retractCartridgeArmWhenReady.isDone()) {
@@ -172,7 +169,7 @@ public class Main extends OpMode {
             }
         }
 
-        if (controller2.getButton(GamepadKeys.Button.X))
+        if (controller2.getButton(GamepadKeys.Button.LEFT_BUMPER))
             cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_POSITION);
     }
 
