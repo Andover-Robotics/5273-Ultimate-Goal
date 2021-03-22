@@ -16,20 +16,15 @@ public class ShooterSubsystem extends SubsystemBase {
     private static FtcDashboard dashboard;
 
     private final static double ticksPerRevolution = 28.0;
-    private final static double targetRPM = GlobalConfig.SHOOTER_RPM;
-    private final static double targetTicksPerSec = ticksPerRevolution * targetRPM / 60.0;
+    private double targetRPM;
+    private double targetTicksPerSec;
 
 
     private enum ShooterState {
-        OFF(0), SHOOT(targetTicksPerSec);
-        public final double power;
-
-        ShooterState(double power) {
-            this.power = power;
-        }
+        OFF, SHOOT
     }
 
-    public ShooterSubsystem(HardwareMap hardwareMap, String shooterName) {
+    public ShooterSubsystem(HardwareMap hardwareMap, String shooterName, double targetRPM) {
         this.shooter = hardwareMap.get(DcMotorEx.class, shooterName);
         this.shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -37,6 +32,9 @@ public class ShooterSubsystem extends SubsystemBase {
         this.shooter.setDirection(DcMotorSimple.Direction.REVERSE);
 
         this.shooterState = ShooterState.OFF;
+
+        this.targetRPM = targetRPM;
+        this.targetTicksPerSec = ticksPerRevolution * targetRPM / 60.0;
 
         dashboard = FtcDashboard.getInstance();
         this.turnOff();
@@ -46,14 +44,21 @@ public class ShooterSubsystem extends SubsystemBase {
         shooterState = ShooterState.SHOOT;
 
         // Update motor by state
-        shooter.setVelocity(shooterState.power);
+        shooter.setVelocity(this.targetTicksPerSec);
     }
 
     public void turnOff() {
         shooterState = ShooterState.OFF;
 
         // Update motor by state
-        shooter.setVelocity(shooterState.power);
+        shooter.setVelocity(0);
+    }
+
+    public void decrementRPM() {
+        this.targetRPM -= 37.5;
+        this.targetTicksPerSec = ticksPerRevolution * this.targetRPM / 60.0;
+
+        runShootingSpeed();
     }
 
     public double getRPM() {

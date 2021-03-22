@@ -1,11 +1,10 @@
 package org.firstinspires.ftc.teamcode.commands.shooting;
 
 import com.arcrobotics.ftclib.command.CommandBase;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.subsystems.ShooterSubsystem;
-import org.firstinspires.ftc.teamcode.teleop.ShooterPIDFSelfTuner;
+import org.firstinspires.ftc.teamcode.teleop.ShooterPIDFSelfTunerAuto;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -15,10 +14,10 @@ public class StartShooter extends CommandBase {
     private ShooterSubsystem shooter;
 
     // Used for rolling average calculation
-    private double currentRPMSum = 0, latestRPMRollingAverage = 0, rollingAverageLengthSeconds = 0.25, acceptableRPMThreshold = 50;
+    private double currentRPMSum = 0, latestRPMRollingAverage = 0, rollingAverageLengthSeconds = 0.15, acceptableRPMThreshold = 115;
 
     // Stores the latest RPM readings. Used to implement a sliding window algorithm for latestRPMRollingAverage
-    private double[] RPMReadings = new double[(int) (rollingAverageLengthSeconds * ShooterPIDFSelfTuner.RPM_READINGS_PER_SECOND + 0.5)];
+    private double[] RPMReadings = new double[(int) (rollingAverageLengthSeconds * ShooterPIDFSelfTunerAuto.RPM_READINGS_PER_SECOND + 0.5)];
 
     // Counters:
     //      currentIndex: the current index in RPMReadings to add the next RPM Reading to
@@ -50,7 +49,8 @@ public class StartShooter extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        // Keep calculating rolling averages of the shooter's RPM until numConsecutiveRequired in a row are within the specified RPM threshold
+        return true;
+        /*// Keep calculating rolling averages of the shooter's RPM until numConsecutiveRequired in a row are within the specified RPM threshold
         // Implement sliding window algorithm to efficiently manage currentRPMSum
         currentRPMSum -= RPMReadings[currentIndex];
         RPMReadings[currentIndex] = shooter.getRPM();
@@ -100,7 +100,7 @@ public class StartShooter extends CommandBase {
         telemetry.addData("F value", shooter.getPIDFCoefficients().f);
         telemetry.update();
 
-        return false;
+        return false;*/
     }
 
     // Schedule the next rolling average calculation

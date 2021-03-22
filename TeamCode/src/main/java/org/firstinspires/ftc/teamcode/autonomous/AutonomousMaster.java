@@ -31,7 +31,7 @@ public class AutonomousMaster extends CommandOpMode {
     public void initialize() {
         // Load in the F coefficient for the shooter
         try {
-            Scanner scanner = new Scanner(new File("sdcard/FIRST/storedShooterFCoefficient.txt"));
+            Scanner scanner = new Scanner(new File("sdcard/FIRST/storedShooterFCoefficientAuto.txt"));
             double f = scanner.nextDouble();
             scanner.close();
 
@@ -52,7 +52,7 @@ public class AutonomousMaster extends CommandOpMode {
         cartridge = new CartridgeSubsystem(hardwareMap, "cartridgeTilt", "cartridgeArm");
         cartridge.initCartridge();
 
-        shooter = new ShooterSubsystem(hardwareMap, "shooter");
+        shooter = new ShooterSubsystem(hardwareMap, "shooter", GlobalConfig.AUTO_SHOOTER_RPM);
 
         wobbleGoalManipulator = new WobbleGoalManipulatorSubsystem(hardwareMap, "wobbleGoalTilt", "wobbleGoalClaw");
         wobbleGoalManipulator.lowerArm();

@@ -55,7 +55,7 @@ public class MainAuto extends AutonomousMaster {
                 break;
             default:
                 thisDeliveryPoint = GlobalConfig.DELIVERY_POINT_A;
-                deliveryToWobbleHeading = 0;
+                deliveryToWobbleHeading = Math.toRadians(135);
                 deliveryToWobbleEndTangent = Math.toRadians(180);
         }
 
@@ -76,7 +76,7 @@ public class MainAuto extends AutonomousMaster {
                         .andThen(new OpenClawWide(wobbleGoalManipulator)),
                 new WaitCommand(250).andThen(new TrajectoryFollowerCommand(drive,
                         drive.trajectoryBuilder(thisDeliveryPoint, deliveryToWobbleHeading)
-                                .splineToSplineHeading(ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : GlobalConfig.COLLECT_OTHER_WOBBLE, deliveryToWobbleEndTangent)
+                                .splineToSplineHeading(GlobalConfig.COLLECT_OTHER_WOBBLE, deliveryToWobbleEndTangent)
                                 .build())
                 )
         );
@@ -89,7 +89,7 @@ public class MainAuto extends AutonomousMaster {
 
         // Opens the claw wide, then strafes to the side and begins to grab for the wobble goal as it approaches
         SequentialCommandGroup collectOtherWobble = (SequentialCommandGroup) new TrajectoryFollowerCommand(drive,
-                drive.trajectoryBuilder(ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : GlobalConfig.COLLECT_OTHER_WOBBLE)
+                drive.trajectoryBuilder(GlobalConfig.COLLECT_OTHER_WOBBLE)
                         .lineToLinearHeading(wobbleCollectionPose).build()
         ).andThen(new WaitCommand(500)).andThen(new GrabWobbleGoal(wobbleGoalManipulator));
 
@@ -100,7 +100,7 @@ public class MainAuto extends AutonomousMaster {
         switch (ringStackResult) {
             case ONE:
                 startingHeading = Math.toRadians(30);
-                xOffset = -4;
+                xOffset = -6;
                 yOffset = 4;
                 break;
             case FOUR:
@@ -116,7 +116,7 @@ public class MainAuto extends AutonomousMaster {
         }
 
         TrajectoryFollowerCommand returnToDeliveryPoint = new TrajectoryFollowerCommand(drive,
-                drive.trajectoryBuilder(wobbleCollectionPose, Math.toRadians(startingHeading))
+                drive.trajectoryBuilder(GlobalConfig.COLLECT_OTHER_WOBBLE, Math.toRadians(startingHeading))
                         .splineToSplineHeading(thisDeliveryPoint.plus(new Pose2d(
                                 xOffset,
                                 yOffset,

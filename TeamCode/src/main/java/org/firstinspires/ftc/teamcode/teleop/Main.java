@@ -56,7 +56,7 @@ public class Main extends OpMode {
         telemetry.update();
 
         try {
-            Scanner scanner = new Scanner(new File("sdcard/FIRST/storedShooterFCoefficient.txt"));
+            Scanner scanner = new Scanner(new File("sdcard/FIRST/storedShooterFCoefficientTeleOp.txt"));
             double f = scanner.nextDouble();
             scanner.close();
 
@@ -80,7 +80,7 @@ public class Main extends OpMode {
         intakeMotor = new MotorEx(hardwareMap, "intake", Motor.GoBILDA.RPM_1150);
         intakeMotor.setInverted(true);
 
-        shooter = new ShooterSubsystem(hardwareMap, "shooter");
+        shooter = new ShooterSubsystem(hardwareMap, "shooter", GlobalConfig.TELEOP_SHOOTER_RPM);
 
         cartridge = new CartridgeSubsystem(hardwareMap, "cartridgeTilt", "cartridgeArm");
 
@@ -140,18 +140,7 @@ public class Main extends OpMode {
         manageIntake(controller1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), controller1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
 
         // WOBBLE GOAL ARM
-        if (controller1.wasJustPressed(GamepadKeys.Button.Y)) {
-            if (wobbleGoalArmState == WobbleGoalArmState.LOWERED) {
-                wobbleGoalManipulator.raiseArm();
-                wobbleGoalArmState = WobbleGoalArmState.CARRYING;
-            } else {
-                wobbleGoalManipulator.raiseOverWall();
-                wobbleGoalArmState = WobbleGoalArmState.RAISED;
-            }
-        } else if (controller1.getButton(GamepadKeys.Button.A)) {
-            wobbleGoalManipulator.lowerArm();
-            wobbleGoalArmState = WobbleGoalArmState.LOWERED;
-        } else if (controller1.getButton(GamepadKeys.Button.X)) {
+        if (controller1.getButton(GamepadKeys.Button.X)) {
             wobbleGoalManipulator.openWide();
         } else if (controller1.getButton(GamepadKeys.Button.B)) {
             wobbleGoalManipulator.grip();
@@ -205,6 +194,19 @@ public class Main extends OpMode {
             cartridge.pushArm();
         else if (controller2.getButton(GamepadKeys.Button.LEFT_BUMPER))
             cartridge.resetArm();
+
+        if (controller2.wasJustPressed(GamepadKeys.Button.X)) {
+            if (wobbleGoalArmState == WobbleGoalArmState.LOWERED) {
+                wobbleGoalManipulator.raiseArm();
+                wobbleGoalArmState = WobbleGoalArmState.CARRYING;
+            } else {
+                wobbleGoalManipulator.raiseOverWall();
+                wobbleGoalArmState = WobbleGoalArmState.RAISED;
+            }
+        } else if (controller2.getButton(GamepadKeys.Button.B)) {
+            wobbleGoalManipulator.lowerArm();
+            wobbleGoalArmState = WobbleGoalArmState.LOWERED;
+        }
 
         // Only allow the cartridge arm to move when the cartridge is at the shooter angle and the arm is neutral
         /*if (controller2.getButton(GamepadKeys.Button.RIGHT_BUMPER) && Math.abs(cartridgeTilt.getPosition() - GlobalConfig.CARTRIDGE_SHOOTER_POSITION) <= 0.02 && Math.abs(cartridgeArm.getPosition() - GlobalConfig.CARTRIDGE_ARM_NEUTRAL_POSITION) <= 0.02) {

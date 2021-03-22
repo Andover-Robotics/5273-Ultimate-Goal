@@ -19,7 +19,8 @@ public class ShootRing extends SequentialCommandGroup {
         this.shooter = shooter;
         this.cartridge = cartridge;
 
-        addCommands(new StartShooter(shooter, telemetry), new PushRing(cartridge), new WaitCommand(armRetractionDelay), new RetractArm(cartridge));
+        addCommands(new StartShooter(shooter, telemetry), new PushRing(cartridge), new WaitCommand(armRetractionDelay),
+                new RetractArm(cartridge));
 
         addRequirements(shooter, cartridge);
     }

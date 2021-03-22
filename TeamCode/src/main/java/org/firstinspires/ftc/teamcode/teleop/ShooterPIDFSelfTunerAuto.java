@@ -23,17 +23,17 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.*;
 
 @Config
 @TeleOp(
-        name = "Shooter Self-Tuner",
+        name = "AUTO Shooter Self-Tuner",
         group = "AA"
 )
-public final class ShooterPIDFSelfTuner extends OpMode {
+public final class ShooterPIDFSelfTunerAuto extends OpMode {
     private DcMotorEx flywheel;
 
     private FtcDashboard dash;
     private GamepadEx pad;
     private CartridgeSubsystem cartridge;
 
-    public static int targetRPM = GlobalConfig.SHOOTER_RPM;
+    public static int targetRPM = GlobalConfig.AUTO_SHOOTER_RPM;
 
     public static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(GlobalConfig.SHOOTER_PIDF_COEFFICIENTS);
     public static double errorFMultiplier = 0.005;
@@ -177,7 +177,7 @@ public final class ShooterPIDFSelfTuner extends OpMode {
 
     public void stop() {
         try {
-            PrintWriter writer = new PrintWriter("sdcard/FIRST/storedShooterFCoefficient.txt");
+            PrintWriter writer = new PrintWriter("sdcard/FIRST/storedShooterFCoefficientAuto.txt");
             writer.print(pidfCoefficients.f);
             writer.close();
         } catch (FileNotFoundException e) {

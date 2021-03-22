@@ -20,11 +20,13 @@ public class ShootRings extends SequentialCommandGroup {
         this.cartridge = cartridge;
         this.numRings = numRings;
 
+        addCommands(new WaitCommand(250));
+
         for (int i = 0; i < numRings; i++) {
             addCommands(new ShootRing(shooter, cartridge, telemetry));
 
             if (i != numRings - 1)
-                addCommands(new StartShooter(shooter, telemetry));
+                addCommands(/*new StartShooter(shooter, telemetry)*/new WaitCommand(1250));
         }
 
         addCommands(new WaitCommand(200));
