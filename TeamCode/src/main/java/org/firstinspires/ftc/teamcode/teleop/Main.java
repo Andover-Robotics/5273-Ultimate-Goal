@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
@@ -31,6 +33,7 @@ import java.util.concurrent.Future;
 @TeleOp(name = "Main TeleOp", group = "AA")
 public class Main extends OpMode {
 
+    private FtcDashboard dash;
     private GamepadEx controller1, controller2;
     private MotorEx intakeMotor;
     private MecanumDriveSubsystem drive;
@@ -88,6 +91,8 @@ public class Main extends OpMode {
 
         drive = new MecanumDriveSubsystem(new RoadrunnerMecanumDrive(hardwareMap), false);
         drive.setPoseEstimate(PoseStorage.currentPose);
+
+        dash = FtcDashboard.getInstance();
 
         // Set Initial Servo Positions / Angles
         setInitialPositions();
@@ -220,6 +225,11 @@ public class Main extends OpMode {
 
         if (controller2.getButton(GamepadKeys.Button.LEFT_BUMPER))
             cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_POSITION);*/
+
+        TelemetryPacket shooterTelemetry = new TelemetryPacket();
+        shooterTelemetry.put("RPM", shooter.getRPM());
+        shooterTelemetry.put("Target RPM", shooter.getTargetRPM());
+        dash.sendTelemetryPacket(shooterTelemetry);
 
         controller1.readButtons();
         controller2.readButtons();
