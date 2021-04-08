@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
+@Config
 public final class GlobalConfig {
     // Unit conversions
     public final static double MM_PER_INCH = 25.4, CM_PER_INCH = 2.54;
@@ -18,19 +20,19 @@ public final class GlobalConfig {
     public final static double ROBOT_WIDTH_MM = 427.766, ROBOT_LENGTH_MM = 432;
 
     // Servo Positions
-    public final static double CARTRIDGE_INTAKE_POSITION = 0.45, CARTRIDGE_SHOOTER_POSITION = 0.15, CARTRIDGE_LEVEL_POSITION = 0.30;
+    public final static double CARTRIDGE_INTAKE_POSITION = 0.44, CARTRIDGE_SHOOTER_POSITION = 0.25, CARTRIDGE_LEVEL_POSITION = 0.34;
     public final static double CARTRIDGE_ARM_NEUTRAL_POSITION = 0.31, CARTRIDGE_ARM_PUSH_RING_POSITION = 0;
 
     // Servo positions for wobble goal mechanism
-    public final static double WOBBLE_GOAL_ARM_TUCKED_POSITION = 1.0, WOBBLE_GOAL_ARM_DOWN_POSITION = 0.39, WOBBLE_GOAL_ARM_OVER_WALL_POSITION = 0.88, WOBBLE_GOAL_MOVING_POSITION = 0.5;
-    public final static double WOBBLE_GOAL_CLAW_GRAB_POSITION = 0.16, WOBBLE_GOAL_CLAW_RELEASE_POSITION = 0.38, WOBBLE_GOAL_CLAW_OPEN_WIDE = 0.50;
+    public final static double WOBBLE_GOAL_ARM_TUCKED_POSITION = 0.95, WOBBLE_GOAL_ARM_DOWN_POSITION = 0.28, WOBBLE_GOAL_ARM_OVER_WALL_POSITION = 0.8, WOBBLE_GOAL_MOVING_POSITION = 0.4;
+    public final static double WOBBLE_GOAL_CLAW_GRAB_POSITION = 0.50, WOBBLE_GOAL_CLAW_RELEASE_POSITION = 0.63, WOBBLE_GOAL_CLAW_OPEN_WIDE = 0.88;
 
     // Remember to run the tuner every time!
     public static PIDFCoefficients SHOOTER_PIDF_COEFFICIENTS = new PIDFCoefficients(10, 0, 0, 14.51037593985026);
 
     // Max powers for intake and shooter
     public static final double INTAKE_MAX_POWER = 0.85, SHOOTER_MAX_POWER = 0.88;
-    public final static int AUTO_SHOOTER_RPM = 3650, TELEOP_SHOOTER_RPM = 3725;
+    public static int AUTO_SHOOTER_RPM = 3650, TELEOP_SHOOTER_RPM = /*4000*/ 4100;
 
     // Start Position
     public static final Pose2d STARTING_POSITION = new Pose2d(-72 + (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -51 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(180));

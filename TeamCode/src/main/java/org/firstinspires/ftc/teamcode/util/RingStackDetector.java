@@ -103,6 +103,8 @@ public class RingStackDetector {
         @SuppressLint("SdCardPath")
         @Override
         public Mat processFrame(Mat input) {
+            Rect potentialRingArea = new Rect(0, input.height() / 3, input.width(), input.height() / 3);
+            Imgproc.rectangle(input, potentialRingArea, new Scalar(255, 255, 255));
             Imgproc.cvtColor(input, test, Imgproc.COLOR_RGB2HLS);
             Core.inRange(test, lowerRange, upperRange, edgeDetector);
             Imgproc.GaussianBlur(edgeDetector, smoothEdges, gaussianKernelSize, 0, 0);
