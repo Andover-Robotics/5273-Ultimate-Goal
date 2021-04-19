@@ -15,7 +15,8 @@ import org.firstinspires.ftc.teamcode.GlobalConfig;
 public class ShooterSubsystem extends SubsystemBase {
     //    private static final PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(45, 0, 15, 14.35);
     private static final PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(55, 0, 15, 13.9); // Gray flywheel
-    private ShooterState shooterState;
+    public ShooterState shooterState;
+    private ShooterType shooterType;
     private final DcMotorEx shooter;
     private static FtcDashboard dashboard;
 
@@ -24,8 +25,12 @@ public class ShooterSubsystem extends SubsystemBase {
     private double targetTicksPerSec;
 
 
-    private enum ShooterState {
+    public enum ShooterState {
         OFF, SHOOT
+    }
+
+    private enum ShooterType{
+        HIGH_GOAL, POWER_SHOT
     }
 
     public ShooterSubsystem(HardwareMap hardwareMap, String shooterName, double targetRPM) {
@@ -51,6 +56,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
         this.shooterState = ShooterState.OFF;
+        this.shooterType= ShooterType.HIGH_GOAL;
 
         this.targetRPM = targetRPM;
         this.targetTicksPerSec = ticksPerRevolution * targetRPM / 60.0;
@@ -59,7 +65,18 @@ public class ShooterSubsystem extends SubsystemBase {
         this.turnOff();
     }
 
-    public void runShootingSpeed() {
+    public void runHighGoalShootingSpeed() {
+        this.targetRPM=GlobalConfig.HIGH_GOAL_SHOOTER_RPM;
+        this.shooterType=ShooterType.HIGH_GOAL;
+        shooterState = ShooterState.SHOOT;
+
+        // Update motor by state
+        shooter.setVelocity(this.targetTicksPerSec);
+    }
+
+    public void runPowerShotShootingSpeed() {
+        this.targetRPM=GlobalConfig.POWER_SHOT_SHOOTER_RPM;
+        this.shooterType=ShooterType.POWER_SHOT;
         shooterState = ShooterState.SHOOT;
 
         // Update motor by state
@@ -77,7 +94,7 @@ public class ShooterSubsystem extends SubsystemBase {
         this.targetRPM -= 37.5;
         this.targetTicksPerSec = ticksPerRevolution * this.targetRPM / 60.0;
 
-        runShootingSpeed();
+
     }
 
     public double getRPM() {

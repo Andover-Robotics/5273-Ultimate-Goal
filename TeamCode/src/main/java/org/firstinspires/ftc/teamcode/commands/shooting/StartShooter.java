@@ -43,7 +43,7 @@ public class StartShooter extends CommandBase {
 
     @Override
     public void initialize() {
-        shooter.runShootingSpeed();
+        shooter.runHighGoalShootingSpeed();
         startCountingTimer();
     }
 

@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.commands.wobble_goal.GripWobble;
 import org.firstinspires.ftc.teamcode.commands.wobble_goal.LowerArm;
 import org.firstinspires.ftc.teamcode.commands.wobble_goal.OpenClawWide;
 import org.firstinspires.ftc.teamcode.drive.PoseStorage;
+import org.firstinspires.ftc.teamcode.subsystems.WobbleGoalManipulatorSubsystem;
 import org.firstinspires.ftc.teamcode.util.RingStackDetector;
 
 
@@ -46,7 +47,7 @@ public class MainAuto extends AutonomousMaster {
             case ONE:
                 thisDeliveryPoint = GlobalConfig.DELIVERY_POINT_B;
                 deliveryToWobbleHeading = GlobalConfig.DELIVERY_POINT_B.getHeading();
-                deliveryToWobbleEndTangent = Math.toRadians(180);
+                deliveryToWobbleEndTangent = Math.toRadians(330);
                 break;
             case FOUR:
                 thisDeliveryPoint = GlobalConfig.DELIVERY_POINT_C;
@@ -81,6 +82,8 @@ public class MainAuto extends AutonomousMaster {
                 )
         );
 
+        SequentialCommandGroup grabWobble= new SequentialCommandGroup(new WaitCommand(500).andThen(new GrabWobbleGoal(wobbleGoalManipulator)));
+
         Pose2d wobbleCollectionPose = new Pose2d(
                 (ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : GlobalConfig.COLLECT_OTHER_WOBBLE).getX() - 2.0,
                 (ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : GlobalConfig.COLLECT_OTHER_WOBBLE).getY() - GlobalConfig.DISTANCE_STRAFED_TO_WOBBLE,
@@ -88,11 +91,6 @@ public class MainAuto extends AutonomousMaster {
         );
 
         // Opens the claw wide, then strafes to the side and begins to grab for the wobble goal as it approaches
-        SequentialCommandGroup collectOtherWobble = (SequentialCommandGroup) new TrajectoryFollowerCommand(drive,
-                drive.trajectoryBuilder(GlobalConfig.COLLECT_OTHER_WOBBLE)
-                        .lineToLinearHeading(wobbleCollectionPose).build()
-        ).andThen(new WaitCommand(500)).andThen(new GrabWobbleGoal(wobbleGoalManipulator));
-
 
         double startingHeading;
         int xOffset, yOffset;
@@ -110,8 +108,8 @@ public class MainAuto extends AutonomousMaster {
                 break;
             default:
                 startingHeading = Math.toRadians(225);
-                xOffset = -4;
-                yOffset = 4;
+                xOffset = -12;
+                yOffset = 0;
                 break;
         }
 
@@ -148,7 +146,7 @@ public class MainAuto extends AutonomousMaster {
                 .andThen(deliverWobbleGoal)
                 .andThen(new WaitCommand(wobbleGoalTransportDelay))
                 .andThen(dropWobbleAndHeadToOther)
-                .andThen(collectOtherWobble)
+                .andThen(grabWobble)
                 .andThen(returnToDeliveryPoint)
                 .andThen(new WaitCommand(wobbleGoalTransportDelay))
                 .andThen(new DropWobbleGoal(wobbleGoalManipulator))

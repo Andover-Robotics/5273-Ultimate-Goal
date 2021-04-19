@@ -21,7 +21,7 @@ import java.util.List;
 public class MecanumDriveSubsystem extends SubsystemBase {
 
     private final RoadrunnerMecanumDrive drive;
-    private final boolean fieldCentric;
+    private boolean fieldCentric;
 
     public MecanumDriveSubsystem(RoadrunnerMecanumDrive drive, boolean isFieldCentric) {
         this.drive = drive;

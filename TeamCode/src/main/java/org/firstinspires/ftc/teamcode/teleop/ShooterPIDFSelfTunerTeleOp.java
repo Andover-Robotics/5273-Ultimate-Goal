@@ -37,7 +37,7 @@ public final class ShooterPIDFSelfTunerTeleOp extends OpMode {
     private GamepadEx pad;
     private CartridgeSubsystem cartridge;
 
-    public static int targetRPM = GlobalConfig.TELEOP_SHOOTER_RPM;
+    public static int targetRPM = GlobalConfig.HIGH_GOAL_SHOOTER_RPM;
 
     public static PIDFCoefficients pidfCoefficients = new PIDFCoefficients(GlobalConfig.SHOOTER_PIDF_COEFFICIENTS);
     public static double errorFMultiplier = 0.005;
