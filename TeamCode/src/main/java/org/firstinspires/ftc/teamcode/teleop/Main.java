@@ -109,11 +109,11 @@ public class Main extends OpMode {
         // Set servos to their proper default positions
         cartridge.lowerCartridge();
         cartridge.resetArm();
+        wobbleGoalManipulator.openWide();
 
         wobbleGoalArmState = WobbleGoalArmState.TUCKED;
         wobbleGoalManipulator.tuckArm();
 
-        wobbleGoalManipulator.openWide();
     }
 
 
@@ -202,10 +202,10 @@ public class Main extends OpMode {
         }
 
         if (controller2.getButton(GamepadKeys.Button.RIGHT_BUMPER)){
-            drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate()).splineToConstantHeading(new Vector2d(GlobalConfig.RING_SHOOTING_POSITION.getX(), GlobalConfig.RING_SHOOTING_POSITION.getY()), Math.toRadians(180.0)).build());
+            drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate()).splineToLinearHeading(GlobalConfig.RING_SHOOTING_POSITION, Math.toRadians(0.0)).build());
         }
         else if(controller2.getButton(GamepadKeys.Button.LEFT_BUMPER)){
-            drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate()).splineToConstantHeading(new Vector2d(GlobalConfig.COLLECT_OTHER_WOBBLE.getX(), GlobalConfig.COLLECT_OTHER_WOBBLE.getY()), Math.toRadians(180.0)).build());
+            drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate()).splineToLinearHeading(GlobalConfig.COLLECT_OTHER_WOBBLE, Math.toRadians(0.0)).build());
         }
 
         if (controller2.getButton(GamepadKeys.Button.X)){

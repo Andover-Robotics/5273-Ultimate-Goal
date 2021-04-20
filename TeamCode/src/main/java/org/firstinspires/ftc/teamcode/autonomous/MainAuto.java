@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelRaceGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
@@ -19,9 +21,14 @@ import org.firstinspires.ftc.teamcode.commands.wobble_goal.GrabWobbleGoal;
 import org.firstinspires.ftc.teamcode.commands.wobble_goal.GripWobble;
 import org.firstinspires.ftc.teamcode.commands.wobble_goal.LowerArm;
 import org.firstinspires.ftc.teamcode.commands.wobble_goal.OpenClawWide;
+import org.firstinspires.ftc.teamcode.commands.wobble_goal.RaiseArm;
 import org.firstinspires.ftc.teamcode.drive.PoseStorage;
 import org.firstinspires.ftc.teamcode.subsystems.WobbleGoalManipulatorSubsystem;
 import org.firstinspires.ftc.teamcode.util.RingStackDetector;
+
+import static org.firstinspires.ftc.teamcode.GlobalConfig.MM_PER_INCH;
+import static org.firstinspires.ftc.teamcode.GlobalConfig.ROBOT_LENGTH_MM;
+import static org.firstinspires.ftc.teamcode.GlobalConfig.ROBOT_WIDTH_MM;
 
 
 @Autonomous(name = "Main Autonomous", group = "AA")
@@ -33,12 +40,13 @@ public class MainAuto extends AutonomousMaster {
 
         ParallelCommandGroup prepareToShoot = new ParallelCommandGroup(new TrajectoryFollowerCommand(drive,
                 // Start heading of 0 corrects the spline to go backwards and not hit the ring stack
-                drive.trajectoryBuilder(GlobalConfig.STARTING_POSITION, 0)
-                        .splineToSplineHeading(GlobalConfig.RING_SHOOTING_POSITION, 0)
+                drive.trajectoryBuilder(GlobalConfig.STARTING_POSITION)
+                        .lineToConstantHeading(GlobalConfig.INTERMEDIATE_POSITION)
+                        .splineToSplineHeading(GlobalConfig.RING_SHOOTING_POSITION, 45)
                         .build()
         ), new StartShooter(shooter, telemetry));
 
-        int ringShotDelay = 1000;
+        int ringShotDelay = 2500;
 
         Pose2d thisDeliveryPoint;
         double deliveryToWobbleHeading, deliveryToWobbleEndTangent;
@@ -47,7 +55,7 @@ public class MainAuto extends AutonomousMaster {
             case ONE:
                 thisDeliveryPoint = GlobalConfig.DELIVERY_POINT_B;
                 deliveryToWobbleHeading = GlobalConfig.DELIVERY_POINT_B.getHeading();
-                deliveryToWobbleEndTangent = Math.toRadians(330);
+                deliveryToWobbleEndTangent = Math.toRadians(180);
                 break;
             case FOUR:
                 thisDeliveryPoint = GlobalConfig.DELIVERY_POINT_C;
@@ -60,35 +68,37 @@ public class MainAuto extends AutonomousMaster {
                 deliveryToWobbleEndTangent = Math.toRadians(180);
         }
 
-        SequentialCommandGroup deliverWobbleGoal = new SequentialCommandGroup(new TrajectoryFollowerCommand(drive,
+        ParallelCommandGroup deliverWobbleGoal = new ParallelCommandGroup(new TrajectoryFollowerCommand(drive,
                 drive.trajectoryBuilder(GlobalConfig.RING_SHOOTING_POSITION.plus(new Pose2d(
                         0,
                         0,
                         35
                 )))
                         .lineToLinearHeading(thisDeliveryPoint)
-                        .build())
+                        .build()),
+                new RaiseArm(wobbleGoalManipulator)
+
+        );
+
+        Pose2d wobbleCollectionPose = new Pose2d(
+                (ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : (ringStackResult == RingStackDetector.RingStackResult.ONE ? GlobalConfig.COLLECT_OTHER_WOBBLE_ONE_RING: GlobalConfig.COLLECT_OTHER_WOBBLE)).getX(),
+                (ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : (ringStackResult == RingStackDetector.RingStackResult.ONE ? GlobalConfig.COLLECT_OTHER_WOBBLE_ONE_RING: GlobalConfig.COLLECT_OTHER_WOBBLE)).getY(),
+                (ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : (ringStackResult == RingStackDetector.RingStackResult.ONE ? GlobalConfig.COLLECT_OTHER_WOBBLE_ONE_RING: GlobalConfig.COLLECT_OTHER_WOBBLE)).getHeading()
         );
 
         ParallelCommandGroup dropWobbleAndHeadToOther = new ParallelCommandGroup(
                 new DropWobbleGoal(wobbleGoalManipulator)
                         .andThen(new LowerArm(wobbleGoalManipulator))
-                        .andThen(new WaitCommand(750))
+                        .andThen(new WaitCommand(250))
                         .andThen(new OpenClawWide(wobbleGoalManipulator)),
                 new WaitCommand(250).andThen(new TrajectoryFollowerCommand(drive,
                         drive.trajectoryBuilder(thisDeliveryPoint, deliveryToWobbleHeading)
-                                .splineToSplineHeading(GlobalConfig.COLLECT_OTHER_WOBBLE, deliveryToWobbleEndTangent)
+                                .splineToSplineHeading(wobbleCollectionPose, deliveryToWobbleEndTangent)
                                 .build())
                 )
         );
 
         SequentialCommandGroup grabWobble= new SequentialCommandGroup(new WaitCommand(500).andThen(new GrabWobbleGoal(wobbleGoalManipulator)));
-
-        Pose2d wobbleCollectionPose = new Pose2d(
-                (ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : GlobalConfig.COLLECT_OTHER_WOBBLE).getX() - 2.0,
-                (ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : GlobalConfig.COLLECT_OTHER_WOBBLE).getY() - GlobalConfig.DISTANCE_STRAFED_TO_WOBBLE,
-                0
-        );
 
         // Opens the claw wide, then strafes to the side and begins to grab for the wobble goal as it approaches
 
@@ -98,13 +108,13 @@ public class MainAuto extends AutonomousMaster {
         switch (ringStackResult) {
             case ONE:
                 startingHeading = Math.toRadians(30);
-                xOffset = -6;
-                yOffset = 4;
+                xOffset = -12;
+                yOffset = 0;
                 break;
             case FOUR:
                 startingHeading = Math.toRadians(200);
-                xOffset = -6;
-                yOffset = 4;
+                xOffset = -12;
+                yOffset = -6;
                 break;
             default:
                 startingHeading = Math.toRadians(225);
@@ -114,25 +124,21 @@ public class MainAuto extends AutonomousMaster {
         }
 
         TrajectoryFollowerCommand returnToDeliveryPoint = new TrajectoryFollowerCommand(drive,
-                drive.trajectoryBuilder(GlobalConfig.COLLECT_OTHER_WOBBLE, Math.toRadians(startingHeading))
+                drive.trajectoryBuilder(wobbleCollectionPose, Math.toRadians(startingHeading))
                         .splineToSplineHeading(thisDeliveryPoint.plus(new Pose2d(
                                 xOffset,
-                                yOffset,
-                                0
+                                yOffset
                         )), 0)
                         .build());
 
-        ParallelCommandGroup park = new ParallelCommandGroup(
-                ringStackResult == RingStackDetector.RingStackResult.ONE ? new TrajectoryFollowerCommand(drive,
-                        drive.trajectoryBuilder(thisDeliveryPoint)
-                                .lineToLinearHeading(GlobalConfig.PARKING_POSITION)
+        ParallelCommandGroup park = new ParallelCommandGroup(new TrajectoryFollowerCommand(drive,
+                        drive.trajectoryBuilder(thisDeliveryPoint.plus(new Pose2d(
+                                xOffset,
+                                yOffset
+                        )))
+                                .strafeTo(GlobalConfig.PARKING_POSITION)
                                 .build()
-                ) : new TrajectoryFollowerCommand(drive,
-                        drive.trajectoryBuilder(thisDeliveryPoint)
-                                .splineToSplineHeading(GlobalConfig.PARKING_POSITION, Math.toRadians(ringStackResult == RingStackDetector.RingStackResult.ZERO ? 0 : 180))
-                                .build()
-                )
-        );
+        ));
 
         // How many ms to wait after driving to a delivery point for the wobble goal to stop shaking
         int wobbleGoalTransportDelay = 500;

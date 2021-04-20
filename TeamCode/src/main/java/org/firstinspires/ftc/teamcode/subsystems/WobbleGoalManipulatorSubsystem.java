@@ -23,12 +23,17 @@ public class WobbleGoalManipulatorSubsystem extends SubsystemBase {
         wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_MOVING_POSITION);
     }
 
+
     public void tuckArm() {
         wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_TUCKED_POSITION);
     }
 
     public void raiseOverWall() {
         wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_ARM_OVER_WALL_POSITION);
+    }
+
+    public void raiseArmFourRings(){
+        wobbleGoalTilt.setPosition(GlobalConfig.WOBBLE_GOAL_MOVING_FOUR_RINGS);
     }
 
     public void grip() {

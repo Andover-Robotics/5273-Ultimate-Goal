@@ -56,12 +56,18 @@ public class AutonomousMaster extends CommandOpMode {
 
         wobbleGoalManipulator = new WobbleGoalManipulatorSubsystem(hardwareMap, "wobbleGoalTilt", "wobbleGoalClaw");
         wobbleGoalManipulator.lowerArm();
-        wobbleGoalManipulator.release();
+        wobbleGoalManipulator.openWide();
+
 
         sleep(3000);
         wobbleGoalManipulator.grip();
         sleep(1000);
-        wobbleGoalManipulator.raiseArm();
+        if (ringStackResult==RingStackDetector.RingStackResult.FOUR) {
+            wobbleGoalManipulator.raiseArmFourRings();
+        }
+        else{
+            wobbleGoalManipulator.raiseArm();
+        }
     }
 
     @Override
@@ -95,7 +101,6 @@ public class AutonomousMaster extends CommandOpMode {
 
         initialize();
         wobbleGoalManipulator.grip();
-        wobbleGoalManipulator.raiseArm();
 
         Timer ringStackDetectorCloseTimer = new Timer();
         ringStackDetectorCloseTimer.schedule(new TimerTask() {

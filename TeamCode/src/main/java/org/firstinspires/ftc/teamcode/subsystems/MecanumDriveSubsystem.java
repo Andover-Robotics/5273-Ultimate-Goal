@@ -93,7 +93,7 @@ public class MecanumDriveSubsystem extends SubsystemBase {
     }
 
     public List<Double> getWheelVelocities() {
-        return drive.getWheelVelocities();
+        return drive.getWheelPositions();
     }
 
     public void stop() {
