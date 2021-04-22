@@ -185,20 +185,13 @@ public class Main extends OpMode {
 //            shooterPowerCap = GlobalConfig.SHOOTER_MAX_POWER;
 
         if (controller2.getButton(GamepadKeys.Button.Y)) {
-            if (shooter.shooterState== ShooterSubsystem.ShooterState.OFF){
-                shooter.runHighGoalShootingSpeed();
-            }
-            else {
-                shooter.turnOff();
-            }
+            shooter.runHighGoalShootingSpeed();
         }
         else if (controller2.getButton(GamepadKeys.Button.A)) {
-            if (shooter.shooterState== ShooterSubsystem.ShooterState.OFF){
-                shooter.runPowerShotShootingSpeed();
-            }
-            else {
-                shooter.turnOff();
-            }
+            shooter.runPowerShotShootingSpeed();
+        }
+        else if( controller2.getButton(GamepadKeys.Button.X)){
+            shooter.turnOff();
         }
 
         if (controller2.getButton(GamepadKeys.Button.RIGHT_BUMPER)){
@@ -208,7 +201,7 @@ public class Main extends OpMode {
             drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate()).splineToLinearHeading(GlobalConfig.COLLECT_OTHER_WOBBLE, Math.toRadians(0.0)).build());
         }
 
-        if (controller2.getButton(GamepadKeys.Button.X)){
+        if (controller2.getButton(GamepadKeys.Button.B)){
             double x = drive.getPoseEstimate().getX();
             double y = drive.getPoseEstimate().getY();
             if (x>0 && y>0){
@@ -242,7 +235,7 @@ public class Main extends OpMode {
         else if (controller2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.05)
             cartridge.resetArm();
 
-        if (controller2.wasJustPressed(GamepadKeys.Button.X)) {
+        if (controller1.wasJustPressed(GamepadKeys.Button.Y)) {
             if (wobbleGoalArmState == WobbleGoalArmState.LOWERED) {
                 wobbleGoalManipulator.raiseArm();
                 wobbleGoalArmState = WobbleGoalArmState.CARRYING;
@@ -250,7 +243,7 @@ public class Main extends OpMode {
                 wobbleGoalManipulator.raiseOverWall();
                 wobbleGoalArmState = WobbleGoalArmState.RAISED;
             }
-        } else if (controller2.getButton(GamepadKeys.Button.B)) {
+        } else if (controller1.getButton(GamepadKeys.Button.A)) {
             wobbleGoalManipulator.lowerArm();
             wobbleGoalArmState = WobbleGoalArmState.LOWERED;
         }

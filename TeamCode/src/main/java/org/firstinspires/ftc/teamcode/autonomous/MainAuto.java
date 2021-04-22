@@ -46,7 +46,9 @@ public class MainAuto extends AutonomousMaster {
                         .build()
         ), new StartShooter(shooter, telemetry));
 
-        int ringShotDelay = 2500;
+        int numRings= 4;
+                //(ringStackResult == RingStackDetector.RingStackResult.FOUR) ? 3 : 4;
+        int ringShotDelay=1250;
 
         Pose2d thisDeliveryPoint;
         double deliveryToWobbleHeading, deliveryToWobbleEndTangent;
@@ -91,14 +93,14 @@ public class MainAuto extends AutonomousMaster {
                         .andThen(new LowerArm(wobbleGoalManipulator))
                         .andThen(new WaitCommand(250))
                         .andThen(new OpenClawWide(wobbleGoalManipulator)),
-                new WaitCommand(250).andThen(new TrajectoryFollowerCommand(drive,
+                new TrajectoryFollowerCommand(drive,
                         drive.trajectoryBuilder(thisDeliveryPoint, deliveryToWobbleHeading)
                                 .splineToSplineHeading(wobbleCollectionPose, deliveryToWobbleEndTangent)
-                                .build())
+                                .build()
                 )
         );
 
-        SequentialCommandGroup grabWobble= new SequentialCommandGroup(new WaitCommand(500).andThen(new GrabWobbleGoal(wobbleGoalManipulator)));
+        SequentialCommandGroup grabWobble= new SequentialCommandGroup(new WaitCommand(250).andThen(new GrabWobbleGoal(wobbleGoalManipulator)));
 
         // Opens the claw wide, then strafes to the side and begins to grab for the wobble goal as it approaches
 
@@ -108,8 +110,8 @@ public class MainAuto extends AutonomousMaster {
         switch (ringStackResult) {
             case ONE:
                 startingHeading = Math.toRadians(30);
-                xOffset = -12;
-                yOffset = 0;
+                xOffset = -10;
+                yOffset = -3;
                 break;
             case FOUR:
                 startingHeading = Math.toRadians(200);
@@ -141,13 +143,13 @@ public class MainAuto extends AutonomousMaster {
         ));
 
         // How many ms to wait after driving to a delivery point for the wobble goal to stop shaking
-        int wobbleGoalTransportDelay = 500;
+        int wobbleGoalTransportDelay = 250;
 
         // RUN AUTO
         schedule(new WaitUntilCommand(this::isStarted)
                 .andThen(prepareToShoot)
                 .andThen(new WaitCommand(100))
-                .andThen(new ShootRings(shooter, cartridge, 3, telemetry))
+                .andThen(new ShootRings(shooter, cartridge, numRings, ringShotDelay, telemetry))
                 .andThen(new StopShooter(shooter))
                 .andThen(deliverWobbleGoal)
                 .andThen(new WaitCommand(wobbleGoalTransportDelay))

@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.subsystems.ShooterSubsystem;
 public class ShootRing extends SequentialCommandGroup {
     private final ShooterSubsystem shooter;
     private final CartridgeSubsystem cartridge;
-    private final int armRetractionDelay = 375;
+    private final int armRetractionDelay = 750;
 
     public ShootRing(ShooterSubsystem shooter, CartridgeSubsystem cartridge, Telemetry telemetry) {
         this.shooter = shooter;
