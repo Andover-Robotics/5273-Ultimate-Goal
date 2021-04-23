@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelRaceGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
@@ -158,8 +159,7 @@ public class MainAuto extends AutonomousMaster {
                 .andThen(new WaitCommand(wobbleGoalTransportDelay))
                 .andThen(new DropWobbleGoal(wobbleGoalManipulator))
                 .andThen(park)
+                .andThen(new InstantCommand(() -> PoseStorage.currentPose = drive.getPoseEstimate()))
         );
-
-        PoseStorage.currentPose = drive.getPoseEstimate();
     }
 }

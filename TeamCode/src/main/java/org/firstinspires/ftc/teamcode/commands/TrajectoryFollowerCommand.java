@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.commands;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.arcrobotics.ftclib.command.CommandBase;
 
+import org.firstinspires.ftc.teamcode.drive.PoseStorage;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 
 public class TrajectoryFollowerCommand extends CommandBase {
@@ -25,6 +26,8 @@ public class TrajectoryFollowerCommand extends CommandBase {
     @Override
     public void execute() {
         drive.update();
+        // Update the PoseStorage as we move to maintain an accurate approximation in case of OpMode crash
+        PoseStorage.currentPose = drive.getPoseEstimate();
     }
 
     @Override
