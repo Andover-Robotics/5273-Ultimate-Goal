@@ -53,7 +53,15 @@ public class Main extends OpMode {
         TUCKED, LOWERED, CARRYING, RAISED
     }
 
+    private enum ControlMode {
+        DRIVER_CONTROL, AUTOMATIC_CONTROL
+    }
+
     private WobbleGoalArmState wobbleGoalArmState;
+    private ControlMode currentControlMode;
+
+    // Adjust according to preference and what needs to be debugged
+    private final boolean SHOULD_LOG_SHOOTER_RPM = false;
 
     @Override
     public void init() {
@@ -61,7 +69,7 @@ public class Main extends OpMode {
         telemetry.addData("Status", "INITIALIZING");
         telemetry.update();
 
-        try {
+        /*try {
             Scanner scanner = new Scanner(new File("sdcard/FIRST/storedShooterFCoefficientTeleOp.txt"));
             double f = scanner.nextDouble();
             scanner.close();
@@ -73,7 +81,7 @@ public class Main extends OpMode {
         } catch (FileNotFoundException e) {
             telemetry.addLine("Error loading shooter F coefficient! Using GlobalConfig's...");
             telemetry.update();
-        }
+        }*/
 
         // Init asyncExecutor (for multithreading)
         asyncExecutor = Executors.newSingleThreadExecutor();
@@ -101,6 +109,9 @@ public class Main extends OpMode {
         // Set Initial Servo Positions / Angles
         setInitialPositions();
 
+        // Default to driver-controlled mode
+        currentControlMode = ControlMode.DRIVER_CONTROL;
+
         // Update Status
         telemetry.addData("Status", "READY");
         telemetry.update();
@@ -114,7 +125,6 @@ public class Main extends OpMode {
 
         wobbleGoalArmState = WobbleGoalArmState.TUCKED;
         wobbleGoalManipulator.tuckArm();
-
     }
 
 
@@ -145,69 +155,98 @@ public class Main extends OpMode {
         telemetry.addData("B", "Push Ring Into Shooter");
         telemetry.update();
 
+        // UPDATE drive - it is VERY important that this is outside of the switch statement
+        drive.update();
+
+        // CONTROLS UNAFFECTED BY CURRENT ControlMode:
         // CONTROLLER 1
         manageIntake(controller1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), controller1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
 
-        // WOBBLE GOAL ARM
-        if (controller1.getButton(GamepadKeys.Button.X)) {
+        // WOBBLE GOAL MANIPULATOR
+        if (controller1.wasJustPressed(GamepadKeys.Button.X))
             wobbleGoalManipulator.openWide();
-        } else if (controller1.getButton(GamepadKeys.Button.B)) {
+        else if (controller1.wasJustPressed(GamepadKeys.Button.B)) {
             wobbleGoalManipulator.grip();
-        }
-        else if(controller1.getButton(GamepadKeys.Button.A)){
+
+            // Lower and grip at the same time if from raised state
+            if (wobbleGoalArmState == WobbleGoalArmState.RAISED) {
+                wobbleGoalManipulator.lowerArm();
+                wobbleGoalArmState = WobbleGoalArmState.LOWERED;
+            }
+        } else if (controller1.wasJustPressed(GamepadKeys.Button.A)) {
             wobbleGoalManipulator.raiseArm();
-            wobbleGoalArmState=WobbleGoalArmState.RAISED;
-        }
-         else if (controller1.getButton(GamepadKeys.Button.BACK)) {
+            wobbleGoalArmState = WobbleGoalArmState.RAISED;
+        } else if (controller1.wasJustPressed(GamepadKeys.Button.BACK)) {
             wobbleGoalManipulator.tuckArm();
             wobbleGoalArmState = WobbleGoalArmState.TUCKED;
+        } else if (controller1.wasJustPressed(GamepadKeys.Button.Y)) {
+            if (wobbleGoalArmState == WobbleGoalArmState.LOWERED) {
+                wobbleGoalManipulator.raiseArm();
+                wobbleGoalArmState = WobbleGoalArmState.CARRYING;
+            } else {
+                wobbleGoalManipulator.raiseOverWall();
+                wobbleGoalArmState = WobbleGoalArmState.RAISED;
+            }
         }
-
-
-        double moveSpeed = 0.4, turnSpeedDegrees = 15;
-        if (controller1.getButton(GamepadKeys.Button.DPAD_UP))
-            drive.drive(-moveSpeed, 0.0, 0.0);
-        else if (controller1.getButton(GamepadKeys.Button.DPAD_DOWN))
-            drive.drive(moveSpeed, 0.0, 0.0);
-        else if (controller1.getButton(GamepadKeys.Button.DPAD_LEFT))
-            drive.drive(0.0, -moveSpeed, 0.0);
-        else if (controller1.getButton(GamepadKeys.Button.DPAD_RIGHT))
-            drive.drive(0.0, moveSpeed, 0.0);
-        else if (controller1.getButton(GamepadKeys.Button.LEFT_BUMPER))
-            drive.drive(0.0, 0.0, -Math.toRadians(turnSpeedDegrees));
-        else if (controller1.getButton(GamepadKeys.Button.RIGHT_BUMPER))
-            drive.drive(0.0, 0.0, Math.toRadians(turnSpeedDegrees));
-        else
-            drive.drive(-controller1.getLeftY(), controller1.getLeftX(), controller1.getRightX());
-
-        drive.update();
-
 
         // CONTROLLER 2
-//        manageShooter(controller2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), controller2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER));
-//        if (controller2.getButton(GamepadKeys.Button.LEFT_STICK_BUTTON))
-//            shooterPowerCap = GlobalConfig.SHOOTER_LATER_RINGS_POWER;
-//        else if (controller2.getButton(GamepadKeys.Button.RIGHT_STICK_BUTTON))
-//            shooterPowerCap = GlobalConfig.SHOOTER_MAX_POWER;
-
-        if (controller2.getButton(GamepadKeys.Button.Y)) {
+        // SHOOTER FLYWHEEL SPEED
+        if (controller2.wasJustPressed(GamepadKeys.Button.Y))
             shooter.runHighGoalShootingSpeed();
-        }
-        else if (controller2.getButton(GamepadKeys.Button.A)) {
+        else if (controller2.wasJustPressed(GamepadKeys.Button.A))
             shooter.runPowerShotShootingSpeed();
-        }
-        else if( controller2.getButton(GamepadKeys.Button.X)){
+        else if (controller2.wasJustPressed(GamepadKeys.Button.X))
             shooter.turnOff();
+        else if (controller2.wasJustPressed(GamepadKeys.Button.B))
+            // Speed for shooting extra rings in end game after delivering a wobble goal
+            shooter.runShootingSpeed(GlobalConfig.HIGH_GOAL_SHOOTER_RPM - 250);
+
+        // Construct and send shooter TelemetryPacket if needed
+        if (SHOULD_LOG_SHOOTER_RPM) {
+            TelemetryPacket shooterTelemetry = new TelemetryPacket();
+            shooterTelemetry.put("RPM", shooter.getRPM());
+            shooterTelemetry.put("Target RPM", shooter.getTargetRPM());
+            dash.sendTelemetryPacket(shooterTelemetry);
         }
 
-        /*
-        if (controller2.getButton(GamepadKeys.Button.RIGHT_BUMPER)){
-            drive.turn(drive.getPoseEstimate().getHeading()-Math.toRadians(180.0));
+        // CARTRIDGE MANAGEMENT
+        if (controller2.getButton(GamepadKeys.Button.DPAD_UP))
+            cartridge.raiseCartridge();
+        else if (controller2.getButton(GamepadKeys.Button.DPAD_DOWN))
+            cartridge.lowerCartridge();
+        else if (controller2.getButton(GamepadKeys.Button.DPAD_LEFT) || controller2.getButton(GamepadKeys.Button.DPAD_RIGHT))
+            cartridge.levelCartridge();
+
+        if (controller2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.05)
+            cartridge.pushArm();
+        else if (controller2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER) > 0.05)
+            cartridge.resetArm();
+
+        // CONTROLS DETERMINED BY CURRENT ControlMode:
+        switch (currentControlMode) {
+            case AUTOMATIC_CONTROL:
+                // AUTOMATIC CONTROL MODE (TRAJECTORY FOLLOWING)
+                break;
+            case DRIVER_CONTROL:
+                // DRIVER CONTROL MODE
+                // Handle driving, turning, and slow modes for driving/strafing/turning
+                double moveSpeed = 0.4, turnSpeedDegrees = 15;
+                if (controller1.getButton(GamepadKeys.Button.DPAD_UP))
+                    drive.drive(-moveSpeed, 0.0, 0.0);
+                else if (controller1.getButton(GamepadKeys.Button.DPAD_DOWN))
+                    drive.drive(moveSpeed, 0.0, 0.0);
+                else if (controller1.getButton(GamepadKeys.Button.DPAD_LEFT))
+                    drive.drive(0.0, -moveSpeed, 0.0);
+                else if (controller1.getButton(GamepadKeys.Button.DPAD_RIGHT))
+                    drive.drive(0.0, moveSpeed, 0.0);
+                else if (controller1.getButton(GamepadKeys.Button.LEFT_BUMPER))
+                    drive.drive(0.0, 0.0, -Math.toRadians(turnSpeedDegrees));
+                else if (controller1.getButton(GamepadKeys.Button.RIGHT_BUMPER))
+                    drive.drive(0.0, 0.0, Math.toRadians(turnSpeedDegrees));
+                else
+                    drive.drive(-controller1.getLeftY(), controller1.getLeftX(), controller1.getRightX());
+                break;
         }
-        else if(controller2.getButton(GamepadKeys.Button.LEFT_BUMPER)){
-            drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate()).splineToLinearHeading(GlobalConfig.COLLECT_OTHER_WOBBLE, Math.toRadians(0.0)).build());
-        }
-        */
 
         /*if (controller2.getButton(GamepadKeys.Button.B)){
             double x = drive.getPoseEstimate().getX();
@@ -227,35 +266,6 @@ public class Main extends OpMode {
         }
         */
 
-        if (controller2.getButton(GamepadKeys.Button.B)){
-            shooter.runShootingSpeed(GlobalConfig.HIGH_GOAL_SHOOTER_RPM-250);
-        }
-
-        // CARTRIDGE MANAGEMENT
-        if (controller2.getButton(GamepadKeys.Button.DPAD_UP))
-            cartridge.raiseCartridge();
-        else if (controller2.getButton(GamepadKeys.Button.DPAD_DOWN))
-            cartridge.lowerCartridge();
-        else if (controller2.getButton(GamepadKeys.Button.DPAD_LEFT) || controller2.getButton(GamepadKeys.Button.DPAD_RIGHT))
-            cartridge.levelCartridge();
-
-        if (controller2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)> 0.05)
-            cartridge.pushArm();
-        else if (controller2.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.05)
-            cartridge.resetArm();
-
-        if (controller1.wasJustPressed(GamepadKeys.Button.Y)) {
-            if (wobbleGoalArmState == WobbleGoalArmState.LOWERED) {
-                wobbleGoalManipulator.raiseArm();
-                wobbleGoalArmState = WobbleGoalArmState.CARRYING;
-            } else {
-                wobbleGoalManipulator.raiseOverWall();
-                wobbleGoalArmState = WobbleGoalArmState.RAISED;
-            }
-        } else if (controller1.getButton(GamepadKeys.Button.B)) {
-            wobbleGoalManipulator.lowerArm();
-            wobbleGoalArmState = WobbleGoalArmState.LOWERED;
-        }
 
         // Only allow the cartridge arm to move when the cartridge is at the shooter angle and the arm is neutral
         /*if (controller2.getButton(GamepadKeys.Button.RIGHT_BUMPER) && Math.abs(cartridgeTilt.getPosition() - GlobalConfig.CARTRIDGE_SHOOTER_POSITION) <= 0.02 && Math.abs(cartridgeArm.getPosition() - GlobalConfig.CARTRIDGE_ARM_NEUTRAL_POSITION) <= 0.02) {
@@ -266,14 +276,7 @@ public class Main extends OpMode {
 //                retractCartridgeArmWhenReady = asyncExecutor.submit(retractArmWhenReady);
             }
         }
-
-        if (controller2.getButton(GamepadKeys.Button.LEFT_BUMPER))
-            cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_POSITION);*/
-
-        TelemetryPacket shooterTelemetry = new TelemetryPacket();
-        shooterTelemetry.put("RPM", shooter.getRPM());
-        shooterTelemetry.put("Target RPM", shooter.getTargetRPM());
-        dash.sendTelemetryPacket(shooterTelemetry);
+*/
 
         controller1.readButtons();
         controller2.readButtons();
@@ -283,7 +286,7 @@ public class Main extends OpMode {
         if (rightTrigger > 0.05)
             intakeMotor.set(GlobalConfig.INTAKE_MAX_POWER);
         else if (leftTrigger > 0.05)
-            intakeMotor.set(-1 *GlobalConfig.INTAKE_MAX_POWER);
+            intakeMotor.set(-1 * GlobalConfig.INTAKE_MAX_POWER);
 
         else
             intakeMotor.stopMotor();

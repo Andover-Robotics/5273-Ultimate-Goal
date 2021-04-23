@@ -30,7 +30,7 @@ public class AutonomousMaster extends CommandOpMode {
     @Override
     public void initialize() {
         // Load in the F coefficient for the shooter
-        try {
+       /* try {
             Scanner scanner = new Scanner(new File("sdcard/FIRST/storedShooterFCoefficientAuto.txt"));
             double f = scanner.nextDouble();
             scanner.close();
@@ -42,7 +42,7 @@ public class AutonomousMaster extends CommandOpMode {
         } catch (FileNotFoundException e) {
             telemetry.addLine("Error loading shooter F coefficient! Using GlobalConfig's...");
             telemetry.update();
-        }
+        }*/
 
         // Instantiate the MecanumDriveSubsystem, which uses a RoadrunnerMecanumDrive, which is bound
         // to the current config's drive train motor-naming scheme

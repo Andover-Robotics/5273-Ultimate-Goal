@@ -26,10 +26,10 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
     public enum ShooterState {
-        OFF, SHOOT
+        OFF, SHOOTING
     }
 
-    private enum ShooterType{
+    private enum ShooterType {
         HIGH_GOAL, POWER_SHOT
     }
 
@@ -56,7 +56,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
         this.shooterState = ShooterState.OFF;
-        this.shooterType= ShooterType.HIGH_GOAL;
+        this.shooterType = ShooterType.HIGH_GOAL;
 
         this.targetRPM = targetRPM;
         this.targetTicksPerSec = ticksPerRevolution * targetRPM / 60.0;
@@ -65,11 +65,11 @@ public class ShooterSubsystem extends SubsystemBase {
         this.turnOff();
     }
 
-    public void runShootingSpeed(int targetRPM){
-        this.targetRPM=targetRPM;
-        this.shooterType=ShooterType.HIGH_GOAL;
+    public void runShootingSpeed(int targetRPM) {
+        this.targetRPM = targetRPM;
+        this.shooterType = ShooterType.HIGH_GOAL;
         this.targetTicksPerSec = ticksPerRevolution * targetRPM / 60.0;
-        shooterState = ShooterState.SHOOT;
+        shooterState = ShooterState.SHOOTING;
 
         // Update motor by state
         shooter.setVelocity(this.targetTicksPerSec);
@@ -77,20 +77,20 @@ public class ShooterSubsystem extends SubsystemBase {
 
 
     public void runHighGoalShootingSpeed() {
-        this.targetRPM=GlobalConfig.HIGH_GOAL_SHOOTER_RPM;
-        this.shooterType=ShooterType.HIGH_GOAL;
+        this.targetRPM = GlobalConfig.HIGH_GOAL_SHOOTER_RPM;
+        this.shooterType = ShooterType.HIGH_GOAL;
         this.targetTicksPerSec = ticksPerRevolution * targetRPM / 60.0;
-        shooterState = ShooterState.SHOOT;
+        shooterState = ShooterState.SHOOTING;
 
         // Update motor by state
         shooter.setVelocity(this.targetTicksPerSec);
     }
 
     public void runPowerShotShootingSpeed() {
-        this.targetRPM=GlobalConfig.POWER_SHOT_SHOOTER_RPM;
-        this.shooterType=ShooterType.POWER_SHOT;
+        this.targetRPM = GlobalConfig.POWER_SHOT_SHOOTER_RPM;
+        this.shooterType = ShooterType.POWER_SHOT;
         this.targetTicksPerSec = ticksPerRevolution * targetRPM / 60.0;
-        shooterState = ShooterState.SHOOT;
+        shooterState = ShooterState.SHOOTING;
 
         // Update motor by state
         shooter.setVelocity(this.targetTicksPerSec);
@@ -106,8 +106,6 @@ public class ShooterSubsystem extends SubsystemBase {
     public void decrementRPM() {
         this.targetRPM -= 37.5;
         this.targetTicksPerSec = ticksPerRevolution * this.targetRPM / 60.0;
-
-
     }
 
     public double getRPM() {
