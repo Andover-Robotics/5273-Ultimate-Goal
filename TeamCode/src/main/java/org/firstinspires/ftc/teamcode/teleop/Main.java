@@ -94,6 +94,7 @@ public class Main extends OpMode {
 
         drive = new MecanumDriveSubsystem(new RoadrunnerMecanumDrive(hardwareMap), false);
         drive.setPoseEstimate(PoseStorage.currentPose);
+        //drive.setPoseEstimate(new Pose2d(GlobalConfig.PARKING_POSITION.getX(), GlobalConfig.PARKING_POSITION.getY(), PoseStorage.currentPose.getHeading()));
 
         dash = FtcDashboard.getInstance();
 
@@ -152,13 +153,18 @@ public class Main extends OpMode {
             wobbleGoalManipulator.openWide();
         } else if (controller1.getButton(GamepadKeys.Button.B)) {
             wobbleGoalManipulator.grip();
-        } else if (controller1.getButton(GamepadKeys.Button.BACK)) {
+        }
+        else if(controller1.getButton(GamepadKeys.Button.A)){
+            wobbleGoalManipulator.raiseArm();
+            wobbleGoalArmState=WobbleGoalArmState.RAISED;
+        }
+         else if (controller1.getButton(GamepadKeys.Button.BACK)) {
             wobbleGoalManipulator.tuckArm();
             wobbleGoalArmState = WobbleGoalArmState.TUCKED;
         }
 
 
-        double moveSpeed = 0.30, turnSpeedDegrees = 15;
+        double moveSpeed = 0.4, turnSpeedDegrees = 15;
         if (controller1.getButton(GamepadKeys.Button.DPAD_UP))
             drive.drive(-moveSpeed, 0.0, 0.0);
         else if (controller1.getButton(GamepadKeys.Button.DPAD_DOWN))
@@ -194,14 +200,16 @@ public class Main extends OpMode {
             shooter.turnOff();
         }
 
+        /*
         if (controller2.getButton(GamepadKeys.Button.RIGHT_BUMPER)){
-            drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate()).splineToLinearHeading(GlobalConfig.RING_SHOOTING_POSITION, Math.toRadians(0.0)).build());
+            drive.turn(drive.getPoseEstimate().getHeading()-Math.toRadians(180.0));
         }
         else if(controller2.getButton(GamepadKeys.Button.LEFT_BUMPER)){
             drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate()).splineToLinearHeading(GlobalConfig.COLLECT_OTHER_WOBBLE, Math.toRadians(0.0)).build());
         }
+        */
 
-        if (controller2.getButton(GamepadKeys.Button.B)){
+        /*if (controller2.getButton(GamepadKeys.Button.B)){
             double x = drive.getPoseEstimate().getX();
             double y = drive.getPoseEstimate().getY();
             if (x>0 && y>0){
@@ -217,10 +225,11 @@ public class Main extends OpMode {
                 drive.setPoseEstimate(new Pose2d(-72, -72, drive.getPoseEstimate().getHeading()));
             }
         }
-        /*else if(controller2.getButton(GamepadKeys.Button.)){
-            drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate()).splineToLinearHeading(GlobalConfig.RING_SHOOTING_POSITION, Math.toRadians(0)).build());
-        }
         */
+
+        if (controller2.getButton(GamepadKeys.Button.B)){
+            shooter.runShootingSpeed(GlobalConfig.HIGH_GOAL_SHOOTER_RPM-250);
+        }
 
         // CARTRIDGE MANAGEMENT
         if (controller2.getButton(GamepadKeys.Button.DPAD_UP))
@@ -243,7 +252,7 @@ public class Main extends OpMode {
                 wobbleGoalManipulator.raiseOverWall();
                 wobbleGoalArmState = WobbleGoalArmState.RAISED;
             }
-        } else if (controller1.getButton(GamepadKeys.Button.A)) {
+        } else if (controller1.getButton(GamepadKeys.Button.B)) {
             wobbleGoalManipulator.lowerArm();
             wobbleGoalArmState = WobbleGoalArmState.LOWERED;
         }
@@ -272,9 +281,9 @@ public class Main extends OpMode {
 
     private void manageIntake(double leftTrigger, double rightTrigger) {
         if (rightTrigger > 0.05)
-            intakeMotor.set(Math.min(rightTrigger, GlobalConfig.INTAKE_MAX_POWER));
+            intakeMotor.set(GlobalConfig.INTAKE_MAX_POWER);
         else if (leftTrigger > 0.05)
-            intakeMotor.set(-1 * Math.min(leftTrigger, GlobalConfig.INTAKE_MAX_POWER));
+            intakeMotor.set(-1 *GlobalConfig.INTAKE_MAX_POWER);
 
         else
             intakeMotor.stopMotor();
