@@ -41,7 +41,8 @@ public class MainAuto extends AutonomousMaster {
 
         ParallelCommandGroup prepareToShoot = new ParallelCommandGroup(new TrajectoryFollowerCommand(drive,
                 // Start heading of 0 corrects the spline to go backwards and not hit the ring stack
-                drive.trajectoryBuilder(GlobalConfig.STARTING_POSITION, 0)
+                drive.trajectoryBuilder(GlobalConfig.STARTING_POSITION)
+                        .lineToConstantHeading(GlobalConfig.INTERMEDIATE_POSITION)
                         .splineToSplineHeading(GlobalConfig.RING_SHOOTING_POSITION, 45)
                         .build()
         ), new StartShooter(shooter, telemetry));
@@ -88,9 +89,10 @@ public class MainAuto extends AutonomousMaster {
                 (ringStackResult == RingStackDetector.RingStackResult.FOUR ? GlobalConfig.COLLECT_OTHER_WOBBLE_FOUR_RINGS : (ringStackResult == RingStackDetector.RingStackResult.ONE ? GlobalConfig.COLLECT_OTHER_WOBBLE_ONE_RING : GlobalConfig.COLLECT_OTHER_WOBBLE)).getHeading()
         );
 
+        double offset=24.0;
         ParallelCommandGroup dropWobbleAndHeadToOther = new ParallelCommandGroup(
                 new DropWobbleGoal(wobbleGoalManipulator)
-                        .andThen(new LowerArm(wobbleGoalManipulator))
+                        .andThen(new RaiseArm(wobbleGoalManipulator))
                         .andThen(new WaitCommand(250))
                         .andThen(new OpenClawWide(wobbleGoalManipulator)),
                 new TrajectoryFollowerCommand(drive,
@@ -100,7 +102,10 @@ public class MainAuto extends AutonomousMaster {
                 )
         );
 
-        SequentialCommandGroup grabWobble = new SequentialCommandGroup(new WaitCommand(250).andThen(new GrabWobbleGoal(wobbleGoalManipulator)));
+        //SequentialCommandGroup linetoPosition= new SequentialCommandGroup(new TrajectoryFollowerCommand(drive, drive.trajectoryBuilder(wobbleCollectionPose.plus(new Pose2d(-1*offset, (ringStackResult== RingStackDetector.RingStackResult.ZERO)? offset: -1*offset, Math.toRadians(0.0)))).lineToConstantHeading(new Vector2d(wobbleCollectionPose.getX(), wobbleCollectionPose.getY())).build()));
+        //.splineToSplineHeading(wobbleCollectionPose.plus(new Pose2d(offset, (ringStackResult== RingStackDetector.RingStackResult.ZERO)? -1/2 * offset: offset/2, Math.toRadians(0.0))), deliveryToWobbleEndTangent)
+        //                                .splineToConstantHeading(new Vector2d(wobbleCollectionPose.getX(), wobbleCollectionPose.getY()), Math.toRadians(180.0))
+        SequentialCommandGroup grabWobble = new SequentialCommandGroup(new LowerArm(wobbleGoalManipulator), new WaitCommand(750).andThen(new GrabWobbleGoal(wobbleGoalManipulator)));
 
         // Opens the claw wide, then strafes to the side and begins to grab for the wobble goal as it approaches
 
@@ -116,7 +121,7 @@ public class MainAuto extends AutonomousMaster {
             case FOUR:
                 startingHeading = Math.toRadians(200);
                 xOffset = -12;
-                yOffset = -6;
+                yOffset = -12;
                 break;
             default:
                 startingHeading = Math.toRadians(225);
