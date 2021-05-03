@@ -29,6 +29,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvInternalCamera;
 import org.openftc.easyopencv.OpenCvPipeline;
 
+import static org.opencv.imgproc.Imgproc.COLOR_RGB2HLS;
+
 public class RingStackDetector {
 
     public enum RingStackResult {
@@ -84,8 +86,8 @@ public class RingStackDetector {
 
     class RingDetectionPipeline extends OpenCvPipeline {
 
-        final Scalar lowerRange = new Scalar(0, 20, 80);
-        final Scalar upperRange = new Scalar(20, 200, 255);
+        final Scalar lowerRange = new Scalar(0, 20, 150);
+        final Scalar upperRange = new Scalar(80, 200, 255);
 
         static final double ONE_RING_AREA = 8000, FOUR_RING_AREA = 13000;
         static final double ST_DEV = 10;
@@ -122,7 +124,7 @@ public class RingStackDetector {
             result = identifyStackFromBounds().orElse(null);
             if (saveImageNext) {
                 Mat cvt = new Mat();
-                Imgproc.cvtColor(input, cvt, Imgproc.COLOR_RGB2BGR);
+                Imgproc.cvtColor(input, cvt, COLOR_RGB2HLS);
                 Log.i("RingStackDetector", "saving current pipeline image");
                 for (Rect r : bounds) {
                     Log.i("RingStackDetector", String.format("result x=%d y=%d width=%d height=%d area=%.2f", r.x, r.y, r.width, r.height, r.area()));

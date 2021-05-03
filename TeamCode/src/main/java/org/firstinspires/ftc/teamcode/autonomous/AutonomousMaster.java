@@ -5,6 +5,7 @@ import com.arcrobotics.ftclib.command.CommandOpMode;
 import org.firstinspires.ftc.teamcode.GlobalConfig;
 import org.firstinspires.ftc.teamcode.drive.RoadrunnerMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.CartridgeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.WobbleGoalManipulatorSubsystem;
@@ -25,6 +26,7 @@ public class AutonomousMaster extends CommandOpMode {
     protected RingStackDetector ringStackDetector;
     protected RingStackDetector.RingStackResult ringStackResult;
     protected ShooterSubsystem shooter;
+    protected IntakeSubsystem intake;
     protected double waitingRingStackConfidence;
 
     @Override
@@ -53,6 +55,8 @@ public class AutonomousMaster extends CommandOpMode {
         cartridge.initCartridge();
 
         shooter = new ShooterSubsystem(hardwareMap, "shooter", GlobalConfig.AUTO_SHOOTER_RPM);
+
+        intake= new IntakeSubsystem(hardwareMap, "intake");
 
         wobbleGoalManipulator = new WobbleGoalManipulatorSubsystem(hardwareMap, "wobbleGoalTilt", "wobbleGoalClaw");
         wobbleGoalManipulator.lowerArm();

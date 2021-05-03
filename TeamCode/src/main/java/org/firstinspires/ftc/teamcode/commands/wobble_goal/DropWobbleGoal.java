@@ -11,7 +11,7 @@ public class DropWobbleGoal extends SequentialCommandGroup {
     public DropWobbleGoal(WobbleGoalManipulatorSubsystem wobbleGoalManipulator) {
         this.wobbleGoalManipulator = wobbleGoalManipulator;
 
-        addCommands(new ReleaseWobble(wobbleGoalManipulator), new WaitCommand(500), new TuckArm(wobbleGoalManipulator));
+        addCommands(new ReleaseWobble(wobbleGoalManipulator), new WaitCommand(500), new RaiseArm(wobbleGoalManipulator));
 
         addRequirements(wobbleGoalManipulator);
     }

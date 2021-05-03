@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.GlobalConfig;
 import org.firstinspires.ftc.teamcode.drive.PoseStorage;
 import org.firstinspires.ftc.teamcode.drive.RoadrunnerMecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.CartridgeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.MecanumDriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.WobbleGoalManipulatorSubsystem;
@@ -39,7 +40,8 @@ public class Main extends OpMode {
 
     private FtcDashboard dash;
     private GamepadEx controller1, controller2;
-    private MotorEx intakeMotor;
+    //private MotorEx intakeMotor;
+    private IntakeSubsystem intakeSubsystem;
     private MecanumDriveSubsystem drive;
     private ShooterSubsystem shooter;
     private CartridgeSubsystem cartridge;
@@ -83,9 +85,11 @@ public class Main extends OpMode {
         controller1 = new GamepadEx(gamepad1);
         controller2 = new GamepadEx(gamepad2);
 
-        // Init + Reverse Motors and Servos
+        /* Init + Reverse Motors and Servos
         intakeMotor = new MotorEx(hardwareMap, "intake", Motor.GoBILDA.RPM_1150);
-        intakeMotor.setInverted(true);
+        intakeMotor.setInverted(true);*/
+
+        intakeSubsystem= new IntakeSubsystem(hardwareMap, "intake");
 
         shooter = new ShooterSubsystem(hardwareMap, "shooter", GlobalConfig.HIGH_GOAL_SHOOTER_RPM);
 
@@ -154,7 +158,9 @@ public class Main extends OpMode {
         if (controller1.getButton(GamepadKeys.Button.X)) {
             wobbleGoalManipulator.openWide();
         } else if (controller1.getButton(GamepadKeys.Button.B)) {
-            wobbleGoalManipulator.grip();
+            if (wobbleGoalArmState==WobbleGoalArmState.CARRYING||wobbleGoalArmState==WobbleGoalArmState.LOWERED) {
+                wobbleGoalManipulator.grip();
+            }
         }
         else if(controller1.getButton(GamepadKeys.Button.A)){
             wobbleGoalManipulator.raiseArm();
@@ -285,12 +291,13 @@ public class Main extends OpMode {
 
     private void manageIntake(double leftTrigger, double rightTrigger) {
         if (rightTrigger > 0.05)
-            intakeMotor.set(GlobalConfig.INTAKE_MAX_POWER);
+            //intakeMotor.set(GlobalConfig.INTAKE_MAX_POWER);
+            intakeSubsystem.forwardIntake();
         else if (leftTrigger > 0.05)
-            intakeMotor.set(-1 *GlobalConfig.INTAKE_MAX_POWER);
-
+            //intakeMotor.set(-1 *GlobalConfig.INTAKE_MAX_POWER);
+            intakeSubsystem.reverseIntake();
         else
-            intakeMotor.stopMotor();
+            intakeSubsystem.stopMotor();
     }
 
     private void checkForInterrupt() throws InterruptedException {
