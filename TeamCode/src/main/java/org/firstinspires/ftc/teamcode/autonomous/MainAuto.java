@@ -45,7 +45,7 @@ public class MainAuto extends AutonomousMaster {
                         .lineToConstantHeading(GlobalConfig.INTERMEDIATE_POSITION)
                         .splineToSplineHeading(GlobalConfig.RING_SHOOTING_POSITION, 45)
                         .build()
-        ), new StartShooter(shooter, telemetry));
+        ), new StartShooter(shooter, telemetry, true));
 
         int numRings = 4;
         //(ringStackResult == RingStackDetector.RingStackResult.FOUR) ? 3 : 4;
