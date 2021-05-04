@@ -12,6 +12,7 @@ import java.util.TimerTask;
 
 public class StartShooter extends CommandBase {
     private ShooterSubsystem shooter;
+    private boolean highGoal;
 
     // Used for rolling average calculation
     private double currentRPMSum = 0, latestRPMRollingAverage = 0, rollingAverageLengthSeconds = 0.15, acceptableRPMThreshold = 115;
@@ -35,15 +36,21 @@ public class StartShooter extends CommandBase {
 
     private Telemetry telemetry;
 
-    public StartShooter(ShooterSubsystem shooter, Telemetry telemetry) {
+    public StartShooter(ShooterSubsystem shooter, Telemetry telemetry, boolean highGoal) {
         this.shooter = shooter;
         this.telemetry = telemetry;
+        this.highGoal=highGoal;
         addRequirements(shooter);
     }
 
     @Override
     public void initialize() {
-        shooter.runHighGoalShootingSpeed();
+        if (highGoal) {
+            shooter.runHighGoalShootingSpeed();
+        }
+        else {
+            shooter.runPowerShotShootingSpeed();
+        }
         startCountingTimer();
     }
 

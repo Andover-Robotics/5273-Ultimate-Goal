@@ -37,7 +37,7 @@ class MainAutoRevised extends AutonomousMaster {
                         .lineToConstantHeading(GlobalConfig.INTERMEDIATE_POSITION)
                         .splineToSplineHeading(GlobalConfig.POWER_SHOT_SHOOTING_POSITION, 45)
                         .build()),
-                new StartShooter(shooter, telemetry));
+                new StartShooter(shooter, telemetry, false));
 
         int numRings = 3;
         //(ringStackResult == RingStackDetector.RingStackResult.FOUR) ? 3 : 4;
@@ -144,7 +144,7 @@ class MainAutoRevised extends AutonomousMaster {
         ParallelCommandGroup prepareToHighGoal = new ParallelCommandGroup(new TrajectoryFollowerCommand(drive, drive
                 .trajectoryBuilder(GlobalConfig.INTAKE_POSITION.plus(new Pose2d(GlobalConfig.STRAFE_DISTANCE, 0, 0)))
                 .splineToSplineHeading(GlobalConfig.RING_SHOOTING_POSITION, Math.toRadians(0.0)).build()),
-                new StartShooter(shooter, telemetry));
+                new StartShooter(shooter, telemetry, true));
 
         ParallelCommandGroup park = new ParallelCommandGroup(new TrajectoryFollowerCommand(drive,
                 drive.trajectoryBuilder(thisDeliveryPoint.plus(new Pose2d(
