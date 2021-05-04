@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.commands.cartridge.LowerCartridge;
 import org.firstinspires.ftc.teamcode.commands.cartridge.RaiseCartridge;
 import org.firstinspires.ftc.teamcode.commands.intake.StartIntake;
 import org.firstinspires.ftc.teamcode.commands.intake.StopIntake;
+import org.firstinspires.ftc.teamcode.commands.shooting.ShootRing;
 import org.firstinspires.ftc.teamcode.commands.shooting.ShootRings;
 import org.firstinspires.ftc.teamcode.commands.shooting.StartShooter;
 import org.firstinspires.ftc.teamcode.commands.shooting.StopShooter;
@@ -43,9 +44,9 @@ class MainAutoRevised extends AutonomousMaster {
         //(ringStackResult == RingStackDetector.RingStackResult.FOUR) ? 3 : 4;
         int ringShotDelay = 1250;
         int turnDelay = 1000;
-        double angleInterval = Math.toRadians(-15.0);
+        double angleInterval = Math.toRadians(15.0);
 
-        ParallelCommandGroup shootPowerShots = new ParallelCommandGroup(new WaitCommand(ringShotDelay).andThen(new TurnCommand(drive, angleInterval)).andThen(new WaitCommand(turnDelay).andThen(new TurnCommand(drive, angleInterval)), new ShootRings(shooter, cartridge, numRings, ringShotDelay, telemetry)));
+        ParallelCommandGroup shootPowerShots = new ParallelCommandGroup(new WaitCommand(ringShotDelay).andThen(new TurnCommand(drive, angleInterval)).andThen(new WaitCommand(turnDelay).andThen(new TurnCommand(drive, angleInterval)), new ShootRings(shooter, cartridge, numRings, ringShotDelay, telemetry, false)));
 
         Pose2d thisDeliveryPoint;
         double deliveryToWobbleHeading, deliveryToWobbleEndTangent;
@@ -189,7 +190,7 @@ class MainAutoRevised extends AutonomousMaster {
                     .andThen(intakePosition)
                     .andThen(strafeIntake)
                     .andThen(prepareToHighGoal)
-                    .andThen(new ShootRings(shooter, cartridge, 1, ringShotDelay, telemetry))
+                    .andThen(new ShootRing(shooter, cartridge, telemetry, true))
                     .andThen(returnToDeliveryPoint)
                     .andThen(new WaitCommand(wobbleGoalTransportDelay))
                     .andThen(new DropWobbleGoal(wobbleGoalManipulator))

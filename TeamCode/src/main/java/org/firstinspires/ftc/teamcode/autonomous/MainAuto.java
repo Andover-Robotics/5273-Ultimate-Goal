@@ -154,7 +154,7 @@ public class MainAuto extends AutonomousMaster {
         schedule(new WaitUntilCommand(this::isStarted)
                 .andThen(prepareToShoot)
                 .andThen(new WaitCommand(100))
-                .andThen(new ShootRings(shooter, cartridge, numRings, ringShotDelay, telemetry))
+                .andThen(new ShootRings(shooter, cartridge, numRings, ringShotDelay, telemetry, true))
                 .andThen(new StopShooter(shooter))
                 .andThen(deliverWobbleGoal)
                 .andThen(new WaitCommand(wobbleGoalTransportDelay))

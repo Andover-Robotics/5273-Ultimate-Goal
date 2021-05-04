@@ -16,7 +16,7 @@ public class ShootRings extends SequentialCommandGroup {
     private final int numRings;
     private final int ringShotDelay;
 
-    public ShootRings(ShooterSubsystem shooter, CartridgeSubsystem cartridge, int numRings, int ringShotDelay, Telemetry telemetry) {
+    public ShootRings(ShooterSubsystem shooter, CartridgeSubsystem cartridge, int numRings, int ringShotDelay, Telemetry telemetry, boolean highGoal) {
         this.shooter = shooter;
         this.cartridge = cartridge;
         this.numRings = numRings;
@@ -25,7 +25,7 @@ public class ShootRings extends SequentialCommandGroup {
         addCommands(new WaitCommand(250));
 
         for (int i = 0; i < numRings; i++) {
-            addCommands(new ShootRing(shooter, cartridge, telemetry));
+            addCommands(new ShootRing(shooter, cartridge, telemetry, highGoal));
 
             if (i != numRings - 1)
                 addCommands(/*new StartShooter(shooter, telemetry)*/new WaitCommand(ringShotDelay));
