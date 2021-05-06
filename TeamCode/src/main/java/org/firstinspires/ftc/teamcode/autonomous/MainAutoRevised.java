@@ -46,7 +46,7 @@ class MainAutoRevised extends AutonomousMaster {
         int turnDelay = 1000;
         double angleInterval = Math.toRadians(15.0);
 
-        ParallelCommandGroup shootPowerShots = new ParallelCommandGroup(new WaitCommand(ringShotDelay).andThen(new TurnCommand(drive, angleInterval)).andThen(new WaitCommand(turnDelay).andThen(new TurnCommand(drive, angleInterval)), new ShootRings(shooter, cartridge, numRings, ringShotDelay, telemetry, false)));
+        ParallelCommandGroup shootPowerShots = new ParallelCommandGroup(new WaitCommand(ringShotDelay).andThen(new TurnCommand(drive, angleInterval)).andThen(new WaitCommand(turnDelay)).andThen(new TurnCommand(drive, angleInterval)), new ShootRings(shooter, cartridge, numRings, ringShotDelay, telemetry, false));
 
         Pose2d thisDeliveryPoint;
         double deliveryToWobbleHeading, deliveryToWobbleEndTangent;
@@ -97,7 +97,6 @@ class MainAutoRevised extends AutonomousMaster {
                         drive.trajectoryBuilder(thisDeliveryPoint, deliveryToWobbleHeading)
                                 .splineToSplineHeading(wobbleCollectionPose, deliveryToWobbleEndTangent)
                                 .build())
-                        .andThen(startIntake)
         );
 
         //SequentialCommandGroup linetoPosition= new SequentialCommandGroup(new TrajectoryFollowerCommand(drive, drive.trajectoryBuilder(wobbleCollectionPose.plus(new Pose2d(-1*offset, (ringStackResult== RingStackDetector.RingStackResult.ZERO)? offset: -1*offset, Math.toRadians(0.0)))).lineToConstantHeading(new Vector2d(wobbleCollectionPose.getX(), wobbleCollectionPose.getY())).build()));
@@ -132,7 +131,7 @@ class MainAutoRevised extends AutonomousMaster {
 
         int intakeDelay = 1250;
         ParallelCommandGroup stopIntake = new ParallelCommandGroup(new StopIntake(intake), new RaiseCartridge(cartridge));
-        SequentialCommandGroup strafeIntake = new SequentialCommandGroup(new TrajectoryFollowerCommand(drive, drive.trajectoryBuilder(GlobalConfig.INTAKE_POSITION).forward(GlobalConfig.STRAFE_DISTANCE).build()), new WaitCommand(intakeDelay).andThen(stopIntake));
+        TrajectoryFollowerCommand strafeIntake = new TrajectoryFollowerCommand(drive, drive.trajectoryBuilder(GlobalConfig.INTAKE_POSITION).forward(GlobalConfig.STRAFE_DISTANCE).build());
 
         TrajectoryFollowerCommand returnToDeliveryPoint = new TrajectoryFollowerCommand(drive,
                 drive.trajectoryBuilder((ringStackResult == RingStackDetector.RingStackResult.ONE) ? GlobalConfig.INTAKE_POSITION.plus(new Pose2d(GlobalConfig.STRAFE_DISTANCE, 0, 0)) : wobbleCollectionPose, Math.toRadians(startingHeading))
@@ -189,6 +188,7 @@ class MainAutoRevised extends AutonomousMaster {
                     .andThen(startIntake)
                     .andThen(intakePosition)
                     .andThen(strafeIntake)
+                    .andThen(stopIntake)
                     .andThen(prepareToHighGoal)
                     .andThen(new ShootRing(shooter, cartridge, telemetry, true))
                     .andThen(returnToDeliveryPoint)
