@@ -117,20 +117,7 @@ public class AutonomousMaster extends CommandOpMode {
         while (!isStarted()) {
             telemetry.addData("Status", "READY");
             telemetry.addData("Detected Starter Stack", ringStackResult);
-            telemetry.addData("Shooter F Coefficient (Use D-Pad to Configure)", GlobalConfig.SHOOTER_PIDF_COEFFICIENTS.f);
             telemetry.update();
-
-            if (gamepad1.dpad_up)
-                GlobalConfig.SHOOTER_PIDF_COEFFICIENTS.f += 0.01;
-            else if (gamepad1.dpad_down)
-                GlobalConfig.SHOOTER_PIDF_COEFFICIENTS.f -= 0.01;
-            else if (gamepad1.dpad_left)
-                GlobalConfig.SHOOTER_PIDF_COEFFICIENTS.f += 0.05;
-            else if (gamepad1.dpad_right)
-                GlobalConfig.SHOOTER_PIDF_COEFFICIENTS.f -= 0.05;
-
-            // Rate-limit inputs
-            sleep(250);
         }
 
         telemetry.addData("Status", "RUNNING");

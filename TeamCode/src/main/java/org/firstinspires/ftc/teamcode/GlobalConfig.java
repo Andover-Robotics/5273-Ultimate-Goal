@@ -43,7 +43,7 @@ public final class GlobalConfig {
     // Ring Shooting Position
     public static final Pose2d RING_SHOOTING_POSITION = new Pose2d(8 - (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -50 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, -Math.toRadians(3.5));
     // Power Shot Shooting Position
-    public static final Pose2d POWER_SHOT_SHOOTING_POSITION= new Pose2d(2 - (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -65 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, -Math.toRadians(30.0));
+    public static final Pose2d POWER_SHOT_SHOOTING_POSITION= new Pose2d(2 - (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -65 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(17.5));
     // Delivery Positions
     public static final Pose2d DELIVERY_POINT_A = new Pose2d(12 + (-1) * (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -69 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(135));
     public static final Pose2d DELIVERY_POINT_B = new Pose2d(37 - (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -34, DELIVERY_POINT_A.getHeading());
