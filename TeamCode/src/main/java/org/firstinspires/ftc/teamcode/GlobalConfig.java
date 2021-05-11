@@ -25,8 +25,8 @@ public final class GlobalConfig {
     public final static double CARTRIDGE_ARM_NEUTRAL_POSITION = 0.28, CARTRIDGE_ARM_PUSH_RING_POSITION = 0;
 
     // Servo positions for wobble goal mechanism
-    public final static double WOBBLE_GOAL_ARM_TUCKED_POSITION = 0.02, WOBBLE_GOAL_ARM_DOWN_POSITION = 0.69, WOBBLE_GOAL_ARM_OVER_WALL_POSITION = 0.17, WOBBLE_GOAL_MOVING_POSITION = 0.58, WOBBLE_GOAL_MOVING_FOUR_RINGS=0.49;
-    public final static double WOBBLE_GOAL_CLAW_GRAB_POSITION = 0.72, WOBBLE_GOAL_CLAW_RELEASE_POSITION = 0.35, WOBBLE_GOAL_CLAW_OPEN_WIDE = 0.27;
+    public final static double WOBBLE_GOAL_ARM_TUCKED_POSITION = 0.05, WOBBLE_GOAL_ARM_DOWN_POSITION = 0.78, WOBBLE_GOAL_ARM_OVER_WALL_POSITION = 0.29, WOBBLE_GOAL_MOVING_POSITION = 0.69, WOBBLE_GOAL_MOVING_FOUR_RINGS=0.56;
+    public final static double WOBBLE_GOAL_CLAW_GRAB_POSITION = 0.40, WOBBLE_GOAL_CLAW_RELEASE_POSITION = 0.63, WOBBLE_GOAL_CLAW_OPEN_WIDE = 1.00;
 
     // Remember to run the tuner every time!
     public static PIDFCoefficients SHOOTER_PIDF_COEFFICIENTS = new PIDFCoefficients(10, 0, 0, 14.51037593985026);
@@ -50,7 +50,7 @@ public final class GlobalConfig {
     public static final Pose2d DELIVERY_POINT_C = new Pose2d(66 - (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, DELIVERY_POINT_A.getY() + 8, DELIVERY_POINT_A.getHeading());
 
     //Intaking Position
-    public static final Pose2d INTAKE_POSITION= new Pose2d(-48 + (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -48+ (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(0.0));
+    public static final Pose2d INTAKE_POSITION= new Pose2d(-48 + (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -42+ (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(0.0));
 
     public static final double STRAFE_DISTANCE= 8.0;
     // Pickup position for other wobble goal

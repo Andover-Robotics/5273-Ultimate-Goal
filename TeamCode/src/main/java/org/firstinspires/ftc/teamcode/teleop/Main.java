@@ -201,10 +201,10 @@ public class Main extends OpMode {
         if (controller2.getButton(GamepadKeys.Button.Y)) {
             shooter.runHighGoalShootingSpeed();
         }
-        else if (controller2.getButton(GamepadKeys.Button.A)) {
+        else if (controller2.getButton(GamepadKeys.Button.X)) {
             shooter.runPowerShotShootingSpeed();
         }
-        else if( controller2.getButton(GamepadKeys.Button.X)){
+        else if( controller2.getButton(GamepadKeys.Button.A)){
             shooter.turnOff();
         }
 
