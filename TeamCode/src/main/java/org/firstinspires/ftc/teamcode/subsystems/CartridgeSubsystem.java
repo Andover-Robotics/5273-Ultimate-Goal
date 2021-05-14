@@ -8,10 +8,16 @@ import org.firstinspires.ftc.teamcode.GlobalConfig;
 
 public class CartridgeSubsystem extends SubsystemBase {
     private final SimpleServo cartridgeTilt, cartridgeArm;
+    public enum ArmState{
+        Pushed, Reset
+    }
+    public ArmState armState;
+
 
     public CartridgeSubsystem(HardwareMap hardwareMap, String tiltName, String armName) {
         cartridgeTilt = new SimpleServo(hardwareMap, tiltName, 300, 0);
         cartridgeArm = new SimpleServo(hardwareMap, armName, 300, 0);
+        this.armState = ArmState.Reset;
     }
 
     public void levelCartridge() {
@@ -28,10 +34,12 @@ public class CartridgeSubsystem extends SubsystemBase {
 
     public void pushArm() {
         cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_PUSH_RING_POSITION);
+        this.armState = ArmState.Pushed;
     }
 
     public void resetArm() {
         cartridgeArm.setPosition(GlobalConfig.CARTRIDGE_ARM_NEUTRAL_POSITION);
+        this.armState = ArmState.Reset;
     }
 
     public void initCartridge() {

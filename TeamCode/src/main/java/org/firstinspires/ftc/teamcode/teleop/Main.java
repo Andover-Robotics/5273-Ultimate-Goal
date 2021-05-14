@@ -35,6 +35,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import static java.lang.Thread.sleep;
+
 @TeleOp(name = "Main TeleOp", group = "AA")
 public class Main extends OpMode {
 
@@ -57,6 +59,9 @@ public class Main extends OpMode {
     }
 
     private WobbleGoalArmState wobbleGoalArmState;
+
+    double counter;
+    double time;
 
     @Override
     public void init() {
@@ -84,6 +89,9 @@ public class Main extends OpMode {
         // Init GamepadEx
         controller1 = new GamepadEx(gamepad1);
         controller2 = new GamepadEx(gamepad2);
+
+        counter = 0.0;
+        time = getRuntime();
 
         /* Init + Reverse Motors and Servos
         intakeMotor = new MotorEx(hardwareMap, "intake", Motor.GoBILDA.RPM_1150);
@@ -238,7 +246,25 @@ public class Main extends OpMode {
         */
 
         if (controller2.getButton(GamepadKeys.Button.B)){
-            shooter.runShootingSpeed(GlobalConfig.HIGH_GOAL_SHOOTER_RPM-250);
+
+            double cycle = 300.0;
+            if ((getRuntime() - time) % cycle <= (cycle/2) && cartridge.armState == CartridgeSubsystem.ArmState.Reset && counter < 3.0) {
+                    cartridge.pushArm();
+                    counter+=0.5;
+            } else if ((getRuntime() - time) % cycle > (cycle/2) && cartridge.armState == CartridgeSubsystem.ArmState.Pushed){
+                    cartridge.resetArm();
+                    counter+=0.5;
+            }
+            /*
+            if (counter < 3){
+                cartridge.pushArm();
+                cartridge.resetArm();
+                counter += 1;
+            }
+            else {
+                counter -= 3;
+            }
+            */
         }
 
         // CARTRIDGE MANAGEMENT

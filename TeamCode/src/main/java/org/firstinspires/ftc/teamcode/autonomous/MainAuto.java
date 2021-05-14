@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.GlobalConfig;
 import org.firstinspires.ftc.teamcode.commands.TrajectoryFollowerCommand;
+import org.firstinspires.ftc.teamcode.commands.TurnCommand;
 import org.firstinspires.ftc.teamcode.commands.cartridge.LowerCartridge;
 import org.firstinspires.ftc.teamcode.commands.cartridge.RaiseCartridge;
 import org.firstinspires.ftc.teamcode.commands.intake.StartIntake;
@@ -53,7 +54,7 @@ public class MainAuto extends AutonomousMaster {
 
         int numRings = 4;
         //(ringStackResult == RingStackDetector.RingStackResult.FOUR) ? 3 : 4;
-        int ringShotDelay = 1250;
+        int ringShotDelay = 750;
 
         Pose2d thisDeliveryPoint;
         double deliveryToWobbleHeading, deliveryToWobbleEndTangent;
@@ -101,10 +102,10 @@ public class MainAuto extends AutonomousMaster {
                         .build());
 
         ParallelCommandGroup dropWobbleAndHeadToOther = new ParallelCommandGroup(
-                new DropWobbleGoal(wobbleGoalManipulator)
+                new LowerArm(wobbleGoalManipulator)
+                        .andThen(new DropWobbleGoal(wobbleGoalManipulator))
                         .andThen(new RaiseArm(wobbleGoalManipulator))
-                        .andThen(new OpenClawWide(wobbleGoalManipulator)),
-                deliverWobbleGoalTrajectory
+                        .andThen(new OpenClawWide(wobbleGoalManipulator))
         );
 
         dropWobbleAndHeadToOther.addCommands(ringStackResult == RingStackDetector.RingStackResult.ONE ? deliverWobbleGoalTrajectory.andThen(startIntake) : deliverWobbleGoalTrajectory);
@@ -136,9 +137,13 @@ public class MainAuto extends AutonomousMaster {
                 break;
         }
 
+        /*TrajectoryFollowerCommand strafeRight = new TrajectoryFollowerCommand(drive,
+                drive.trajectoryBuilder(wobbleCollectionPose).
+                        strafeRight(Math.abs(GlobalConfig.INTAKE_POSITION.getY()-wobbleCollectionPose.getY())).build());
+                        */
+
         TrajectoryFollowerCommand intakePosition = new TrajectoryFollowerCommand(drive,
-                drive.trajectoryBuilder(wobbleCollectionPose)
-                        .splineToSplineHeading(GlobalConfig.INTAKE_POSITION, Math.toRadians(0.0)).build());
+                drive.trajectoryBuilder(wobbleCollectionPose).splineToConstantHeading(new Vector2d(GlobalConfig.INTAKE_POSITION.getX(), GlobalConfig.INTAKE_POSITION.getY()), Math.toRadians(0.0)).build());
 
         int intakeDelay = 1250;
         ParallelCommandGroup stopIntake = new ParallelCommandGroup(new StopIntake(intake), new RaiseCartridge(cartridge));
@@ -189,21 +194,25 @@ public class MainAuto extends AutonomousMaster {
             schedule(new WaitUntilCommand(this::isStarted)
                     .andThen(prepareToShoot)
                     .andThen(new ShootRings(shooter, cartridge, numRings, ringShotDelay, telemetry, true))
-                    .andThen(new StopShooter(shooter))
+                    //.andThen(new StopShooter(shooter))
                     .andThen(deliverWobbleGoal)
                     .andThen(new WaitCommand(wobbleGoalTransportDelay))
                     .andThen(dropWobbleAndHeadToOther)
                     .andThen(grabWobble)
+                    //.andThen(strafeRight)
+                    .andThen(new TurnCommand(drive, GlobalConfig.INTAKE_POSITION.getHeading()))
                     .andThen(intakePosition)
                     .andThen(strafeIntake)
                     .andThen(new WaitCommand(intakeDelay))
                     .andThen(stopIntake)
                     .andThen(prepareToHighGoal)
+                    .andThen(new WaitCommand(250))
                     .andThen(new ShootRing(shooter, cartridge, telemetry, true))
+                    .andThen(new StopShooter(shooter))
                     .andThen(returnToDeliveryPoint)
                     .andThen(new WaitCommand(wobbleGoalTransportDelay))
-                    .andThen(new DropWobbleGoal(wobbleGoalManipulator))
-                    .andThen(park)
+                    .andThen(new LowerArm(wobbleGoalManipulator).andThen(new DropWobbleGoal(wobbleGoalManipulator)))
+                    //.andThen(park)
                     .andThen(new InstantCommand(() -> PoseStorage.currentPose = drive.getPoseEstimate()))
             );
 

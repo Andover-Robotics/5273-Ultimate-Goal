@@ -105,8 +105,7 @@ public class MainAutoRevised extends AutonomousMaster {
         ParallelCommandGroup dropWobbleAndHeadToOther = new ParallelCommandGroup(
                 new DropWobbleGoal(wobbleGoalManipulator)
                         .andThen(new RaiseArm(wobbleGoalManipulator))
-                        .andThen(new OpenClawWide(wobbleGoalManipulator)),
-                deliverWobbleGoalTrajectory
+                        .andThen(new OpenClawWide(wobbleGoalManipulator))
         );
 
         dropWobbleAndHeadToOther.addCommands(ringStackResult == RingStackDetector.RingStackResult.ONE ? deliverWobbleGoalTrajectory.andThen(startIntake) : deliverWobbleGoalTrajectory);
