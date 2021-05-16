@@ -11,7 +11,7 @@ public class GrabWobbleGoal extends SequentialCommandGroup {
     public GrabWobbleGoal(WobbleGoalManipulatorSubsystem wobbleGoalManipulator) {
         this.wobbleGoalManipulator = wobbleGoalManipulator;
 
-        addCommands(new GripWobble(wobbleGoalManipulator), new WaitCommand(400), new RaiseArm(wobbleGoalManipulator));
+        addCommands(new GripWobble(wobbleGoalManipulator), new WaitCommand(750), new RaiseArm(wobbleGoalManipulator));
 
         addRequirements(wobbleGoalManipulator);
     }

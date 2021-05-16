@@ -209,7 +209,7 @@ public class Main extends OpMode {
         if (controller2.getButton(GamepadKeys.Button.Y)) {
             shooter.runHighGoalShootingSpeed();
         }
-        else if (controller2.getButton(GamepadKeys.Button.X)) {
+        else if (controller2.getButton(GamepadKeys.Button.B)) {
             shooter.runPowerShotShootingSpeed();
         }
         else if( controller2.getButton(GamepadKeys.Button.A)){
@@ -245,7 +245,7 @@ public class Main extends OpMode {
         }
         */
 
-        if (controller2.getButton(GamepadKeys.Button.B)){
+        if (controller2.getButton(GamepadKeys.Button.X)){
 
             double cycle = 300.0;
             if ((getRuntime() - time) % cycle <= (cycle/2) && cartridge.armState == CartridgeSubsystem.ArmState.Reset && counter < 3.0) {
