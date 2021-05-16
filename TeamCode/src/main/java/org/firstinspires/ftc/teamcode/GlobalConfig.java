@@ -21,11 +21,11 @@ public final class GlobalConfig {
     public final static double ROBOT_WIDTH_MM = 427.766, ROBOT_LENGTH_MM = 432;
 
     // Servo Positions
-    public final static double CARTRIDGE_INTAKE_POSITION = 0.47, CARTRIDGE_SHOOTER_POSITION = 0.18, CARTRIDGE_LEVEL_POSITION = 0.34;
+    public final static double CARTRIDGE_INTAKE_POSITION = 0.47, CARTRIDGE_SHOOTER_POSITION = 0.17, CARTRIDGE_LEVEL_POSITION = 0.34;
     public final static double CARTRIDGE_ARM_NEUTRAL_POSITION = 0.28, CARTRIDGE_ARM_PUSH_RING_POSITION = 0;
 
     // Servo positions for wobble goal mechanism
-    public final static double WOBBLE_GOAL_ARM_TUCKED_POSITION = 0.05, WOBBLE_GOAL_ARM_DOWN_POSITION = 0.78, WOBBLE_GOAL_ARM_OVER_WALL_POSITION = 0.19, WOBBLE_GOAL_MOVING_POSITION = 0.69, WOBBLE_GOAL_MOVING_FOUR_RINGS=0.56;
+    public final static double WOBBLE_GOAL_ARM_TUCKED_POSITION = 0.07, WOBBLE_GOAL_ARM_DOWN_POSITION = 0.78, WOBBLE_GOAL_ARM_OVER_WALL_POSITION = 0.17, WOBBLE_GOAL_MOVING_POSITION = 0.67, WOBBLE_GOAL_MOVING_FOUR_RINGS=0.56;
     public final static double WOBBLE_GOAL_CLAW_GRAB_POSITION = 0.40, WOBBLE_GOAL_CLAW_RELEASE_POSITION = 0.63, WOBBLE_GOAL_CLAW_OPEN_WIDE = 1.00;
 
     // Remember to run the tuner every time!
@@ -33,7 +33,7 @@ public final class GlobalConfig {
 
     // Max powers for intake and shooter
     public static final double INTAKE_MAX_POWER = 0.85, SHOOTER_MAX_POWER = 0.88;
-    public static int AUTO_SHOOTER_RPM = 3650, HIGH_GOAL_SHOOTER_RPM = /*4100*/ 4100, POWER_SHOT_SHOOTER_RPM=3450;
+    public static int AUTO_SHOOTER_RPM = 3650, HIGH_GOAL_SHOOTER_RPM = /*4100*/ 3800, POWER_SHOT_SHOOTER_RPM=3230;
 
     // Start Position
     public static final Pose2d STARTING_POSITION = new Pose2d(-72 + (ROBOT_LENGTH_MM / MM_PER_INCH) / 2.0, -51 + (ROBOT_WIDTH_MM / MM_PER_INCH) / 2.0, Math.toRadians(180));
