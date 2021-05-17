@@ -2,10 +2,8 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
-import com.arcrobotics.ftclib.command.ParallelRaceGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.command.WaitUntilCommand;
@@ -14,30 +12,20 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.GlobalConfig;
 import org.firstinspires.ftc.teamcode.commands.TrajectoryFollowerCommand;
 import org.firstinspires.ftc.teamcode.commands.TurnCommand;
-import org.firstinspires.ftc.teamcode.commands.cartridge.LevelCartridge;
 import org.firstinspires.ftc.teamcode.commands.cartridge.LowerCartridge;
 import org.firstinspires.ftc.teamcode.commands.cartridge.RaiseCartridge;
 import org.firstinspires.ftc.teamcode.commands.intake.Outtake;
 import org.firstinspires.ftc.teamcode.commands.intake.StartIntake;
 import org.firstinspires.ftc.teamcode.commands.intake.StopIntake;
-import org.firstinspires.ftc.teamcode.commands.shooting.ShootRing;
 import org.firstinspires.ftc.teamcode.commands.shooting.ShootRings;
 import org.firstinspires.ftc.teamcode.commands.shooting.StartShooter;
 import org.firstinspires.ftc.teamcode.commands.shooting.StopShooter;
 import org.firstinspires.ftc.teamcode.commands.wobble_goal.DropWobbleGoal;
 import org.firstinspires.ftc.teamcode.commands.wobble_goal.GrabWobbleGoal;
-import org.firstinspires.ftc.teamcode.commands.wobble_goal.GripWobble;
 import org.firstinspires.ftc.teamcode.commands.wobble_goal.LowerArm;
 import org.firstinspires.ftc.teamcode.commands.wobble_goal.OpenClawWide;
-import org.firstinspires.ftc.teamcode.commands.wobble_goal.RaiseArm;
-import org.firstinspires.ftc.teamcode.commands.wobble_goal.TuckArm;
 import org.firstinspires.ftc.teamcode.drive.PoseStorage;
-import org.firstinspires.ftc.teamcode.subsystems.WobbleGoalManipulatorSubsystem;
 import org.firstinspires.ftc.teamcode.util.RingStackDetector;
-
-import static org.firstinspires.ftc.teamcode.GlobalConfig.MM_PER_INCH;
-import static org.firstinspires.ftc.teamcode.GlobalConfig.ROBOT_LENGTH_MM;
-import static org.firstinspires.ftc.teamcode.GlobalConfig.ROBOT_WIDTH_MM;
 
 
 @Autonomous(name = "Main Autonomous", group = "AA")
@@ -57,7 +45,7 @@ public class MainAuto extends AutonomousMaster {
 
         int numRings = 3;
         //(ringStackResult == RingStackDetector.RingStackResult.FOUR) ? 3 : 4;
-        int ringShotDelay = 600;
+        int ringShotDelay = 500;
 
         Pose2d thisDeliveryPoint;
         double deliveryToWobbleHeading, deliveryToWobbleEndTangent;
@@ -71,7 +59,7 @@ public class MainAuto extends AutonomousMaster {
             case FOUR:
                 thisDeliveryPoint = GlobalConfig.DELIVERY_POINT_C;
                 deliveryToWobbleHeading = GlobalConfig.DELIVERY_POINT_C.getHeading();
-                deliveryToWobbleEndTangent = Math.toRadians(180);
+                deliveryToWobbleEndTangent = Math.toRadians(200);
                 break;
             default:
                 thisDeliveryPoint = GlobalConfig.DELIVERY_POINT_A;
@@ -146,11 +134,32 @@ public class MainAuto extends AutonomousMaster {
                         */
 
         TrajectoryFollowerCommand intakePosition = new TrajectoryFollowerCommand(drive,
-                drive.trajectoryBuilder(wobbleCollectionPose).splineToConstantHeading(new Vector2d(GlobalConfig.INTAKE_POSITION.getX(), GlobalConfig.INTAKE_POSITION.getY()), Math.toRadians(0.0)).build());
+                drive.trajectoryBuilder(wobbleCollectionPose).splineToLinearHeading(GlobalConfig.INTAKE_POSITION, Math.toRadians(0.0)).build());
 
-        int intakeDelay = 250;
+        int outtakeDuration = 625;
+        double targetX = GlobalConfig.INTAKE_POSITION.getX() + GlobalConfig.STRAFE_DISTANCE;
+        double stopPoint = 0.95;
         ParallelCommandGroup stopIntake = new ParallelCommandGroup(new StopIntake(intake), new RaiseCartridge(cartridge));
-        TrajectoryFollowerCommand strafeIntake = new TrajectoryFollowerCommand(drive, drive.trajectoryBuilder(GlobalConfig.INTAKE_POSITION).forward(GlobalConfig.STRAFE_DISTANCE).build());
+        SequentialCommandGroup strafeIntake = new SequentialCommandGroup(
+                // Drive forward, then back up briefly and drive forward again - gets the rings unstuck from the front barrier, which sometimes happens
+                new TrajectoryFollowerCommand(drive, drive.trajectoryBuilder(GlobalConfig.INTAKE_POSITION).forward(GlobalConfig.STRAFE_DISTANCE * 0.4).build()),
+                new TrajectoryFollowerCommand(drive, drive.trajectoryBuilder(GlobalConfig.INTAKE_POSITION.plus(new Pose2d(GlobalConfig.STRAFE_DISTANCE * 0.4, 0, 0))).back(GlobalConfig.STRAFE_DISTANCE / 65).build()),
+                new ParallelCommandGroup(
+                        new TrajectoryFollowerCommand(drive, drive.trajectoryBuilder(GlobalConfig.INTAKE_POSITION.plus(new Pose2d(GlobalConfig.STRAFE_DISTANCE * 25 / 65.0, 0, 0))).forward(GlobalConfig.STRAFE_DISTANCE * 40 / 63.0).build()),
+                        // Stop intaking stopPoint % of the way through so that the fourth ring isn't taken in
+                        new WaitUntilCommand(() -> Math.abs(drive.getPoseEstimate().getX() - targetX) < (1 - stopPoint) * GlobalConfig.STRAFE_DISTANCE)
+                                .andThen(new WaitCommand(50))
+                                .andThen(new Outtake(intake))
+                                .andThen(new WaitCommand(outtakeDuration))
+                                .andThen(stopIntake)
+                                .andThen(new RaiseCartridge(cartridge))
+                )
+//                        .andThen(new TrajectoryFollowerCommand(drive, drive.trajectoryBuilder(GlobalConfig.INTAKE_POSITION.plus(new Pose2d(GlobalConfig.STRAFE_DISTANCE * 41 / 63.0, 0, 0))).back(GlobalConfig.STRAFE_DISTANCE / 63).build()))
+//                        .andThen(new TrajectoryFollowerCommand(drive, drive.trajectoryBuilder(GlobalConfig.INTAKE_POSITION.plus(new Pose2d(GlobalConfig.STRAFE_DISTANCE * 40 / 63.0, 0, 0))).forward(GlobalConfig.STRAFE_DISTANCE * 23 / 63.0).build())),
+//                .andThen(new TrajectoryFollowerCommand(drive, drive.trajectoryBuilder(GlobalConfig.INTAKE_POSITION.plus(new Pose2d(GlobalConfig.STRAFE_DISTANCE / 2, 0, 0))).forward(STRAFE_DISTANCE / 2).build())),
+//                new WaitUntilCommand(() -> Math.abs(drive.getPoseEstimate().getX() - GlobalConfig.INTAKE_POSITION.getX()) > shooterStopPoint * GlobalConfig.STRAFE_DISTANCE)
+
+        );
 
         TrajectoryFollowerCommand returnToDeliveryPoint = new TrajectoryFollowerCommand(drive,
                 drive.trajectoryBuilder((ringStackResult != RingStackDetector.RingStackResult.ZERO) ? GlobalConfig.RING_SHOOTING_POSITION.plus(new Pose2d(-2.0, 0.0, 0.0)) : wobbleCollectionPose)
@@ -161,13 +170,10 @@ public class MainAuto extends AutonomousMaster {
                         .build());
 
         ParallelCommandGroup prepareToHighGoal = new ParallelCommandGroup(new TrajectoryFollowerCommand(drive, drive
-                                 .trajectoryBuilder(GlobalConfig.INTAKE_POSITION.plus(new Pose2d(GlobalConfig.STRAFE_DISTANCE, 0, 0)))
-                                 .splineToConstantHeading(new Vector2d(GlobalConfig.RING_SHOOTING_POSITION.getX() - 1.0, GlobalConfig.RING_SHOOTING_POSITION.getY()), Math.toRadians(0.0)).build()),
-                                 new StartShooter(shooter, telemetry, true),
-                                 new LevelCartridge(cartridge)
-                                 .andThen(new Outtake(intake))
-                                 .andThen(new WaitCommand(intakeDelay))
-                                 .andThen(stopIntake));
+                .trajectoryBuilder(GlobalConfig.INTAKE_POSITION.plus(new Pose2d(GlobalConfig.STRAFE_DISTANCE, 0, 0)))
+                .splineToLinearHeading(GlobalConfig.RING_SHOOTING_POSITION, Math.toRadians(0.0)).build()),
+                new StartShooter(shooter, telemetry, true)
+        );
 
         //new TrajectoryFollowerCommand(drive, drive
         //                .trajectoryBuilder(GlobalConfig.INTAKE_POSITION.plus(new Pose2d(GlobalConfig.STRAFE_DISTANCE, 0, 0)))
@@ -179,8 +185,8 @@ public class MainAuto extends AutonomousMaster {
                         yOffset
                 )))
                         .strafeTo(GlobalConfig.PARKING_POSITION)
-                        .build()),
-                new StartIntake(intake)
+                        .build())/*,
+                new StartIntake(intake)*/
         );
 
         // How many ms to wait after driving to a delivery point for the wobble goal to stop shaking
@@ -203,28 +209,26 @@ public class MainAuto extends AutonomousMaster {
             );
         } else {
             schedule(new WaitUntilCommand(this::isStarted)
-                    .andThen(prepareToShoot)
-                    .andThen(new ShootRings(shooter, cartridge, numRings, ringShotDelay, telemetry, true))
-                    //.andThen(new StopShooter(shooter))
-                    .andThen(deliverWobbleGoal)
-                    //.andThen(new WaitCommand(wobbleGoalTransportDelay))
-                    .andThen(dropWobbleAndHeadToOther)
-                    .andThen(grabWobble)
-                    //.andThen(strafeRight)]
-                    .andThen(intakePosition)
-                    .andThen(strafeIntake)
-                    .andThen(prepareToHighGoal)
-                    .andThen(new StopIntake(intake))
-                    .andThen(new TurnCommand(drive, GlobalConfig.RING_SHOOTING_POSITION.getHeading()- Math.toRadians(1.0)))
-                    .andThen(new WaitCommand(250))
-                    .andThen(new ShootRings(shooter, cartridge, (ringStackResult == RingStackDetector.RingStackResult.ONE) ? 1 : numRings + 1,  ringShotDelay, telemetry, true))
-                    .andThen(new StopShooter(shooter))
-                    .andThen(returnToDeliveryPoint)
-                    //.andThen(new WaitCommand(wobbleGoalTransportDelay))
-                    .andThen(new LowerArm(wobbleGoalManipulator).andThen(new DropWobbleGoal(wobbleGoalManipulator)))
-                    .andThen(new LowerCartridge(cartridge))
-                    .andThen(park)
-                    .andThen(new InstantCommand(() -> PoseStorage.currentPose = drive.getPoseEstimate()))
+                            .andThen(prepareToShoot)
+                            .andThen(new ShootRings(shooter, cartridge, numRings, ringShotDelay, telemetry, true))
+                            .andThen(new StopShooter(shooter))
+                            .andThen(deliverWobbleGoal)
+                            //.andThen(new WaitCommand(wobbleGoalTransportDelay))
+                            .andThen(dropWobbleAndHeadToOther)
+                            .andThen(grabWobble)
+                            //.andThen(strafeRight)]
+                            .andThen(intakePosition)
+                            .andThen(strafeIntake)
+                            .andThen(prepareToHighGoal)
+//                    .andThen(new StopIntake(intake))
+//                            .andThen(new TurnCommand(drive, GlobalConfig.RING_SHOOTING_POSITION.getHeading() - Math.toRadians(1.0)))
+                            .andThen(new ShootRings(shooter, cartridge, (ringStackResult == RingStackDetector.RingStackResult.ONE) ? 1 : numRings + 1, ringShotDelay, telemetry, true))
+                            .andThen()
+                            .andThen(new ParallelCommandGroup(returnToDeliveryPoint, new StopShooter(shooter), new LowerCartridge(cartridge).andThen(new WaitCommand(250)).andThen(new StartIntake(intake))))
+                            //.andThen(new WaitCommand(wobbleGoalTransportDelay))
+                            .andThen(new LowerArm(wobbleGoalManipulator).andThen(new DropWobbleGoal(wobbleGoalManipulator)))
+                            .andThen(park)
+                            .andThen(new InstantCommand(() -> PoseStorage.currentPose = drive.getPoseEstimate()))
             );
 
         }

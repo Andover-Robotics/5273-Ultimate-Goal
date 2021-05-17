@@ -49,7 +49,7 @@ public class Main extends OpMode {
     private CartridgeSubsystem cartridge;
     private WobbleGoalManipulatorSubsystem wobbleGoalManipulator;
 
-    private Future<?> retractCartridgeArmWhenReady = null;
+    private Future<?> retractCartridgeArm = null;
     private ExecutorService asyncExecutor;
 
     private double shooterPowerCap = GlobalConfig.SHOOTER_MAX_POWER;
@@ -245,6 +245,24 @@ public class Main extends OpMode {
         }
         */
 
+        /*
+        // TODO: Vismay implement this please
+        // Call the arm push
+        retractCartridgeArm = asyncExecutor.submit(() -> {
+            try {
+                cartridge.pushArm();
+                sleep(200);
+                cartridge.resetArm();
+            } catch (InterruptedException e) {
+                cartridge.resetArm();
+            }
+        });
+
+        // You know an arm command isn't currently running in the background when the following is true:
+        retractCartridgeArm == null || retractCartridgeArm.isDone() || retractCartridgeArm.isCancelled();
+        // So, don't let the call the code that submits to the executor unless the above is true
+        // If they press the button and the above is false you can just do nothing
+        */
         if (controller2.getButton(GamepadKeys.Button.X)){
 
             double cycle = 300.0;
