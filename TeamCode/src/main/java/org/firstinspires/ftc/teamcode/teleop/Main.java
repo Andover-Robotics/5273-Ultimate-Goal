@@ -245,45 +245,31 @@ public class Main extends OpMode {
         }
         */
 
-        /*
+
         // TODO: Vismay implement this please
         // Call the arm push
-        retractCartridgeArm = asyncExecutor.submit(() -> {
-            try {
-                cartridge.pushArm();
-                sleep(200);
-                cartridge.resetArm();
-            } catch (InterruptedException e) {
-                cartridge.resetArm();
+        if (controller2.getButton(GamepadKeys.Button.X)) {
+            if (retractCartridgeArm == null || retractCartridgeArm.isDone() || retractCartridgeArm.isCancelled()) {
+                retractCartridgeArm = asyncExecutor.submit(() -> {
+                    try {
+                        for (int i = 0; i < 3; i++) {
+                            cartridge.pushArm();
+                            sleep(200);
+                            cartridge.resetArm();
+                        }
+                    } catch (InterruptedException e) {
+                        cartridge.resetArm();
+                    }
+                });
             }
-        });
+        }
 
         // You know an arm command isn't currently running in the background when the following is true:
-        retractCartridgeArm == null || retractCartridgeArm.isDone() || retractCartridgeArm.isCancelled();
+        //retractCartridgeArm == null || retractCartridgeArm.isDone() || retractCartridgeArm.isCancelled();
         // So, don't let the call the code that submits to the executor unless the above is true
         // If they press the button and the above is false you can just do nothing
-        */
-        if (controller2.getButton(GamepadKeys.Button.X)){
 
-            double cycle = 300.0;
-            if ((getRuntime() - time) % cycle <= (cycle/2) && cartridge.armState == CartridgeSubsystem.ArmState.Reset && counter < 3.0) {
-                    cartridge.pushArm();
-                    counter+=0.5;
-            } else if ((getRuntime() - time) % cycle > (cycle/2) && cartridge.armState == CartridgeSubsystem.ArmState.Pushed){
-                    cartridge.resetArm();
-                    counter+=0.5;
-            }
-            /*
-            if (counter < 3){
-                cartridge.pushArm();
-                cartridge.resetArm();
-                counter += 1;
-            }
-            else {
-                counter -= 3;
-            }
-            */
-        }
+
 
         // CARTRIDGE MANAGEMENT
         if (controller2.getButton(GamepadKeys.Button.DPAD_UP))

@@ -45,7 +45,7 @@ public class MainAuto extends AutonomousMaster {
 
         int numRings = 3;
         //(ringStackResult == RingStackDetector.RingStackResult.FOUR) ? 3 : 4;
-        int ringShotDelay = 500;
+        int ringShotDelay = 600;
 
         Pose2d thisDeliveryPoint;
         double deliveryToWobbleHeading, deliveryToWobbleEndTangent;
@@ -162,7 +162,7 @@ public class MainAuto extends AutonomousMaster {
         );
 
         TrajectoryFollowerCommand returnToDeliveryPoint = new TrajectoryFollowerCommand(drive,
-                drive.trajectoryBuilder((ringStackResult != RingStackDetector.RingStackResult.ZERO) ? GlobalConfig.RING_SHOOTING_POSITION.plus(new Pose2d(-2.0, 0.0, 0.0)) : wobbleCollectionPose)
+                drive.trajectoryBuilder((ringStackResult != RingStackDetector.RingStackResult.ZERO) ? GlobalConfig.RING_SHOOTING_POSITION.plus(new Pose2d(-2.0, 0.0, Math.toRadians(-1.5))) : wobbleCollectionPose)
                         .splineToSplineHeading(thisDeliveryPoint.plus(new Pose2d(
                                 xOffset,
                                 yOffset
@@ -171,26 +171,29 @@ public class MainAuto extends AutonomousMaster {
 
         ParallelCommandGroup prepareToHighGoal = new ParallelCommandGroup(new TrajectoryFollowerCommand(drive, drive
                 .trajectoryBuilder(GlobalConfig.INTAKE_POSITION.plus(new Pose2d(GlobalConfig.STRAFE_DISTANCE, 0, 0)))
-                .splineToLinearHeading(GlobalConfig.RING_SHOOTING_POSITION, Math.toRadians(0.0)).build()),
+                .splineToLinearHeading(GlobalConfig.RING_SHOOTING_POSITION.plus(new Pose2d(-2.0, 0.0, Math.toRadians(-1.5))), Math.toRadians(0.0)).build()),
                 new StartShooter(shooter, telemetry, true)
         );
+
+        //new Pose2d(-2.0, 0.0, 0.0)
 
         //new TrajectoryFollowerCommand(drive, drive
         //                .trajectoryBuilder(GlobalConfig.INTAKE_POSITION.plus(new Pose2d(GlobalConfig.STRAFE_DISTANCE, 0, 0)))
         //                .splineToConstantHeading(new Vector2d(GlobalConfig.RING_SHOOTING_POSITION.getX() + 2.0, GlobalConfig.RING_SHOOTING_POSITION.getY()), Math.toRadians(0.0)).build())
 
-        ParallelCommandGroup park = new ParallelCommandGroup(new TrajectoryFollowerCommand(drive,
+        TrajectoryFollowerCommand parking = new TrajectoryFollowerCommand(drive,
                 drive.trajectoryBuilder(thisDeliveryPoint.plus(new Pose2d(
                         xOffset,
                         yOffset
                 )))
                         .strafeTo(GlobalConfig.PARKING_POSITION)
-                        .build())/*,
-                new StartIntake(intake)*/
-        );
+                        .build());
+
+        ParallelCommandGroup park = new ParallelCommandGroup(parking);
+
 
         // How many ms to wait after driving to a delivery point for the wobble goal to stop shaking
-        int wobbleGoalTransportDelay = 250;
+        //int wobbleGoalTransportDelay = 250;
 
         // RUN AUTO
         if (ringStackResult == RingStackDetector.RingStackResult.ZERO) {
@@ -199,6 +202,7 @@ public class MainAuto extends AutonomousMaster {
                     .andThen(new ShootRings(shooter, cartridge, numRings, ringShotDelay, telemetry, true))
                     .andThen(new StopShooter(shooter))
                     .andThen(deliverWobbleGoal)
+                    .andThen(dropWobbleAndHeadToOther)
                     //.andThen(new WaitCommand(wobbleGoalTransportDelay))
                     .andThen(grabWobble)
                     .andThen(returnToDeliveryPoint)
@@ -223,7 +227,6 @@ public class MainAuto extends AutonomousMaster {
 //                    .andThen(new StopIntake(intake))
 //                            .andThen(new TurnCommand(drive, GlobalConfig.RING_SHOOTING_POSITION.getHeading() - Math.toRadians(1.0)))
                             .andThen(new ShootRings(shooter, cartridge, (ringStackResult == RingStackDetector.RingStackResult.ONE) ? 1 : numRings + 1, ringShotDelay, telemetry, true))
-                            .andThen()
                             .andThen(new ParallelCommandGroup(returnToDeliveryPoint, new StopShooter(shooter), new LowerCartridge(cartridge).andThen(new WaitCommand(250)).andThen(new StartIntake(intake))))
                             //.andThen(new WaitCommand(wobbleGoalTransportDelay))
                             .andThen(new LowerArm(wobbleGoalManipulator).andThen(new DropWobbleGoal(wobbleGoalManipulator)))
