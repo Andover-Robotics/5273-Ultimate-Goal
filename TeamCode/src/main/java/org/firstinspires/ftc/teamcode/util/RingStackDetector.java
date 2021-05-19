@@ -86,7 +86,7 @@ public class RingStackDetector {
 
     class RingDetectionPipeline extends OpenCvPipeline {
 
-        final Scalar lowerRange = new Scalar(0, 20, 150);
+        final Scalar lowerRange = new Scalar(0, 50, 150);
         final Scalar upperRange = new Scalar(80, 200, 255);
 
         static final double ONE_RING_AREA = 8000, FOUR_RING_AREA = 13000;

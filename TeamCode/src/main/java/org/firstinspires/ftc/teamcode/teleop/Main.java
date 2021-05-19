@@ -252,11 +252,17 @@ public class Main extends OpMode {
             if (retractCartridgeArm == null || retractCartridgeArm.isDone() || retractCartridgeArm.isCancelled()) {
                 retractCartridgeArm = asyncExecutor.submit(() -> {
                     try {
-                        for (int i = 0; i < 3; i++) {
-                            cartridge.pushArm();
-                            sleep(200);
-                            cartridge.resetArm();
-                        }
+                        cartridge.pushArm();
+                        sleep(125);
+                        cartridge.resetArm();
+                        sleep(125);
+                        cartridge.pushArm();
+                        sleep(125);
+                        cartridge.resetArm();
+                        sleep(125);
+                        cartridge.pushArm();
+                        sleep(125);
+                        cartridge.resetArm();
                     } catch (InterruptedException e) {
                         cartridge.resetArm();
                     }
