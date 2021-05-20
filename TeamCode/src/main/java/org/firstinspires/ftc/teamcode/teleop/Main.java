@@ -166,15 +166,13 @@ public class Main extends OpMode {
         if (controller1.getButton(GamepadKeys.Button.X)) {
             wobbleGoalManipulator.openWide();
         } else if (controller1.getButton(GamepadKeys.Button.B)) {
-            if (wobbleGoalArmState==WobbleGoalArmState.CARRYING||wobbleGoalArmState==WobbleGoalArmState.LOWERED) {
+            if (wobbleGoalArmState == WobbleGoalArmState.CARRYING || wobbleGoalArmState == WobbleGoalArmState.LOWERED) {
                 wobbleGoalManipulator.grip();
             }
-        }
-        else if(controller1.getButton(GamepadKeys.Button.A)){
+        } else if (controller1.getButton(GamepadKeys.Button.A)) {
             wobbleGoalManipulator.raiseArm();
-            wobbleGoalArmState=WobbleGoalArmState.RAISED;
-        }
-         else if (controller1.getButton(GamepadKeys.Button.BACK)) {
+            wobbleGoalArmState = WobbleGoalArmState.RAISED;
+        } else if (controller1.getButton(GamepadKeys.Button.BACK)) {
             wobbleGoalManipulator.tuckArm();
             wobbleGoalArmState = WobbleGoalArmState.TUCKED;
         }
@@ -208,11 +206,9 @@ public class Main extends OpMode {
 
         if (controller2.getButton(GamepadKeys.Button.Y)) {
             shooter.runHighGoalShootingSpeed();
-        }
-        else if (controller2.getButton(GamepadKeys.Button.B)) {
+        } else if (controller2.getButton(GamepadKeys.Button.B)) {
             shooter.runPowerShotShootingSpeed();
-        }
-        else if( controller2.getButton(GamepadKeys.Button.A)){
+        } else if (controller2.getButton(GamepadKeys.Button.A)) {
             shooter.turnOff();
         }
 
@@ -248,20 +244,21 @@ public class Main extends OpMode {
 
         // TODO: Vismay implement this please
         // Call the arm push
+        int cartridgeDelay = 180;
         if (controller2.getButton(GamepadKeys.Button.X)) {
             if (retractCartridgeArm == null || retractCartridgeArm.isDone() || retractCartridgeArm.isCancelled()) {
                 retractCartridgeArm = asyncExecutor.submit(() -> {
                     try {
                         cartridge.pushArm();
-                        sleep(125);
+                        sleep(cartridgeDelay);
                         cartridge.resetArm();
-                        sleep(125);
+                        sleep(cartridgeDelay);
                         cartridge.pushArm();
-                        sleep(125);
+                        sleep(cartridgeDelay);
                         cartridge.resetArm();
-                        sleep(125);
+                        sleep(cartridgeDelay);
                         cartridge.pushArm();
-                        sleep(125);
+                        sleep(cartridgeDelay);
                         cartridge.resetArm();
                     } catch (InterruptedException e) {
                         cartridge.resetArm();
@@ -276,14 +273,21 @@ public class Main extends OpMode {
         // If they press the button and the above is false you can just do nothing
 
 
-
         // CARTRIDGE MANAGEMENT
         if (controller2.getButton(GamepadKeys.Button.DPAD_UP))
             cartridge.raiseCartridge();
-        else if (controller2.getButton(GamepadKeys.Button.DPAD_DOWN))
+        else if (controller2.getButton(GamepadKeys.Button.DPAD_DOWN)){
             cartridge.lowerCartridge();
-        else if (controller2.getButton(GamepadKeys.Button.DPAD_LEFT) || controller2.getButton(GamepadKeys.Button.DPAD_RIGHT))
+        if (cartridge.armState == CartridgeSubsystem.ArmState.Pushed) {
+            cartridge.resetArm();
+            }
+        }
+        else if (controller2.getButton(GamepadKeys.Button.DPAD_LEFT) || controller2.getButton(GamepadKeys.Button.DPAD_RIGHT)){
             cartridge.levelCartridge();
+            if (cartridge.armState == CartridgeSubsystem.ArmState.Pushed) {
+                cartridge.resetArm();
+            }
+    }
 
         if (controller2.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER)> 0.05)
             cartridge.pushArm();

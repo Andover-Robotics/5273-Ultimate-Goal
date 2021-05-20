@@ -12,9 +12,12 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 
 import org.firstinspires.ftc.teamcode.GlobalConfig;
 
+import java.io.File;
+
 public class ShooterSubsystem extends SubsystemBase {
     //    private static final PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(45, 0, 15, 14.35);
     private static final PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(55, 0, 15, 13.9); // Gray flywheel
+
     public ShooterState shooterState;
     private ShooterType shooterType;
     private final DcMotorEx shooter;
@@ -46,6 +49,13 @@ public class ShooterSubsystem extends SubsystemBase {
         MotorConfigurationType motorConfigurationType = shooter.getMotorType().clone();
         motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
         shooter.setMotorType(motorConfigurationType);
+
+        /* try {
+            File pidfCoefficients = new File("sdcard/FIRST/storedShooterFCoefficientAuto.txt");
+            int f = pidfCoefficients.toString()
+        }
+
+         */
 
         this.shooter.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         shooter.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(

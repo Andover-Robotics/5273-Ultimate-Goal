@@ -45,7 +45,7 @@ public class MainAuto extends AutonomousMaster {
 
         int numRings = 3;
         //(ringStackResult == RingStackDetector.RingStackResult.FOUR) ? 3 : 4;
-        int ringShotDelay = 600;
+        int ringShotDelay = (ringStackResult == RingStackDetector.RingStackResult.ZERO) ? 750 : 500;
 
         Pose2d thisDeliveryPoint;
         double deliveryToWobbleHeading, deliveryToWobbleEndTangent;
@@ -54,7 +54,7 @@ public class MainAuto extends AutonomousMaster {
             case ONE:
                 thisDeliveryPoint = GlobalConfig.DELIVERY_POINT_B;
                 deliveryToWobbleHeading = GlobalConfig.DELIVERY_POINT_B.getHeading();
-                deliveryToWobbleEndTangent = Math.toRadians(180);
+                deliveryToWobbleEndTangent = Math.toRadians(200);
                 break;
             case FOUR:
                 thisDeliveryPoint = GlobalConfig.DELIVERY_POINT_C;
@@ -113,12 +113,12 @@ public class MainAuto extends AutonomousMaster {
         switch (ringStackResult) {
             case ONE:
                 startingHeading = Math.toRadians(210);
-                xOffset = -10;
+                xOffset = -5;
                 yOffset = 4;
                 break;
             case FOUR:
-                startingHeading = Math.toRadians(200);
-                xOffset = -12;
+                startingHeading = - Math.toRadians(60);
+                xOffset = -9;
                 yOffset = -8;
                 break;
             default:
@@ -138,7 +138,7 @@ public class MainAuto extends AutonomousMaster {
 
         int outtakeDuration = 625;
         double targetX = GlobalConfig.INTAKE_POSITION.getX() + GlobalConfig.STRAFE_DISTANCE;
-        double stopPoint = 0.90;
+        double stopPoint = 0.95;
         ParallelCommandGroup stopIntake = new ParallelCommandGroup(new StopIntake(intake), new RaiseCartridge(cartridge));
         SequentialCommandGroup strafeIntake = new SequentialCommandGroup(
                 // Drive forward, then back up briefly and drive forward again - gets the rings unstuck from the front barrier, which sometimes happens
@@ -163,11 +163,12 @@ public class MainAuto extends AutonomousMaster {
 
 
          TrajectoryFollowerCommand returnToDeliveryPoint = new TrajectoryFollowerCommand(drive,
-                    drive.trajectoryBuilder((ringStackResult != RingStackDetector.RingStackResult.ZERO) ? GlobalConfig.RING_SHOOTING_POSITION.plus(new Pose2d(-2.0, 0.0, Math.toRadians(-1.5))) : wobbleCollectionPose)
+                    drive.trajectoryBuilder((ringStackResult != RingStackDetector.RingStackResult.ZERO) ? GlobalConfig.RING_SHOOTING_POSITION.plus(new Pose2d(-2.0, 0.0, Math.toRadians(-1.5))) : wobbleCollectionPose, startingHeading)
                             .splineToSplineHeading(thisDeliveryPoint.plus(new Pose2d(
                                     xOffset,
-                                    yOffset
-                            )), startingHeading)
+                                    yOffset,
+                                    Math.toRadians(0.0)
+                            )), Math.toRadians(0.0))
                             .build());
 
         ParallelCommandGroup prepareToHighGoal = new ParallelCommandGroup(new TrajectoryFollowerCommand(drive, drive
@@ -184,14 +185,13 @@ public class MainAuto extends AutonomousMaster {
         //                .trajectoryBuilder(GlobalConfig.INTAKE_POSITION.plus(new Pose2d(GlobalConfig.STRAFE_DISTANCE, 0, 0)))
         //                .splineToConstantHeading(new Vector2d(GlobalConfig.RING_SHOOTING_POSITION.getX() + 2.0, GlobalConfig.RING_SHOOTING_POSITION.getY()), Math.toRadians(0.0)).build())
 
-        Vector2d parkingPosition = new Vector2d(8.0, (ringStackResult != RingStackDetector.RingStackResult.ZERO) ? thisDeliveryPoint.getY() + yOffset : -36.0);
 
         TrajectoryFollowerCommand parking = new TrajectoryFollowerCommand(drive,
                 drive.trajectoryBuilder(thisDeliveryPoint.plus(new Pose2d(
                         xOffset,
                         yOffset
                 )))
-                        .strafeTo(parkingPosition)
+                        .strafeTo(GlobalConfig.PARKING_POSITION)
                         .build());
 
         ParallelCommandGroup park = new ParallelCommandGroup(parking);
@@ -220,7 +220,7 @@ public class MainAuto extends AutonomousMaster {
             schedule(new WaitUntilCommand(this::isStarted)
                             .andThen(prepareToShoot)
                             .andThen(new ShootRings(shooter, cartridge, numRings, ringShotDelay, telemetry, true))
-                            .andThen(new WaitCommand(ringShotDelay / 2).andThen(new StopShooter(shooter)))
+                            .andThen(new WaitCommand(ringShotDelay / 4).andThen(new StopShooter(shooter)))
                             .andThen(deliverWobbleGoal)
                             //.andThen(new WaitCommand(wobbleGoalTransportDelay))
                             .andThen(dropWobbleAndHeadToOther)
@@ -231,7 +231,7 @@ public class MainAuto extends AutonomousMaster {
                             .andThen(prepareToHighGoal)
 //                    .andThen(new StopIntake(intake))
 //                            .andThen(new TurnCommand(drive, GlobalConfig.RING_SHOOTING_POSITION.getHeading() - Math.toRadians(1.0)))
-                            .andThen(new ShootRings(shooter, cartridge, (ringStackResult == RingStackDetector.RingStackResult.ONE) ? 1 : numRings + 1, ringShotDelay, telemetry, true))
+                            .andThen(new ShootRings(shooter, cartridge, (ringStackResult == RingStackDetector.RingStackResult.ONE) ? numRings + 1 : numRings + 1, ringShotDelay, telemetry, true))
                             .andThen(new ParallelCommandGroup(returnToDeliveryPoint, new StopShooter(shooter), new LowerCartridge(cartridge).andThen(new WaitCommand(250)).andThen(new StartIntake(intake))))
                             //.andThen(new WaitCommand(wobbleGoalTransportDelay))
                             .andThen(new LowerArm(wobbleGoalManipulator).andThen(new DropWobbleGoal(wobbleGoalManipulator)))
