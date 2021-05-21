@@ -114,8 +114,8 @@ public class MainAuto extends AutonomousMaster {
         switch (ringStackResult) {
             case ONE:
                 startingHeading = Math.toRadians(30);
-                xOffset = -5;
-                yOffset = 4;
+                xOffset = -6;
+                yOffset = 0;
                 break;
             case FOUR:
                 startingHeading = -Math.toRadians(60);
@@ -139,7 +139,7 @@ public class MainAuto extends AutonomousMaster {
 
         int outtakeDuration = 625;
         double targetX = GlobalConfig.INTAKE_POSITION.getX() + GlobalConfig.STRAFE_DISTANCE;
-        double stopPoint = 0.975;
+        double stopPoint = 0.95;
         ParallelCommandGroup stopIntake = new ParallelCommandGroup(new StopIntake(intake), new RaiseCartridge(cartridge));
         SequentialCommandGroup strafeIntake = new SequentialCommandGroup(
                 // Drive forward, then back up briefly and drive forward again - gets the rings unstuck from the front barrier, which sometimes happens
@@ -162,20 +162,32 @@ public class MainAuto extends AutonomousMaster {
 
         );
 
-        Pose2d ringShootingPositionOffset = new Pose2d(-2, 0, Math.toRadians(-5));
+        Pose2d ringShootingPositionOffset = new Pose2d(-2, 0, Math.toRadians(-1.5));
+        double endTangentDegrees;
 
+        switch(ringStackResult) {
+            case ONE:
+                endTangentDegrees = 30;
+                break;
+            case FOUR:
+                endTangentDegrees = 315;
+                break;
+            default:
+                endTangentDegrees = 0;
+                break;
+        }
         TrajectoryFollowerCommand returnToDeliveryPoint = new TrajectoryFollowerCommand(drive,
                 drive.trajectoryBuilder((ringStackResult != RingStackDetector.RingStackResult.ZERO) ? GlobalConfig.RING_SHOOTING_POSITION.plus(ringShootingPositionOffset) : wobbleCollectionPose, startingHeading)
                         .splineToSplineHeading(thisDeliveryPoint.plus(new Pose2d(
                                 xOffset,
                                 yOffset,
                                 Math.toRadians(0.0)
-                        )), Math.toRadians(30.0))
+                        )), Math.toRadians(endTangentDegrees))
                         .build());
 
         ParallelCommandGroup prepareToHighGoal = new ParallelCommandGroup(new TrajectoryFollowerCommand(drive, drive
                 .trajectoryBuilder(GlobalConfig.INTAKE_POSITION.plus(new Pose2d(GlobalConfig.STRAFE_DISTANCE, 0, 0)))
-                .splineToLinearHeading(GlobalConfig.RING_SHOOTING_POSITION.plus(ringShootingPositionOffset), Math.toRadians(0.0)).build()),
+                .lineToLinearHeading(GlobalConfig.RING_SHOOTING_POSITION.plus(ringShootingPositionOffset)).build()),
                 new StartShooter(shooter, telemetry, true)
         );
 
